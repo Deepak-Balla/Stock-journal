@@ -10,10 +10,10 @@
  * sign-in plus the security rules in firestore.rules.
  */
 window.FIREBASE_CONFIG = {
-  apiKey: "",
-  authDomain: "",      // e.g. your-project.firebaseapp.com
-  projectId: "",       // e.g. your-project
-  storageBucket: "",
-  messagingSenderId: "",
-  appId: ""
+  apiKey: "AIzaSyArG13iIrgV5sCARtRJL5zlRJECmrWI_LY",
+  authDomain: "stock-journal-d7971.firebaseapp.com",
+  projectId: "stock-journal-d7971",
+  storageBucket: "stock-journal-d7971.firebasestorage.app",
+  messagingSenderId: "912444260484",
+  appId: "1:912444260484:web:1f251cb9badb45dc2502d1"
 };

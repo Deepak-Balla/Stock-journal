@@ -4,6 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Stock Journal</title>
+<meta name="description" content="Log your trades and see daily, monthly and yearly profit & loss.">
+<meta name="theme-color" content="#4f46e5">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Journal">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -55,18 +63,9 @@ main{padding:24px 28px 60px;max-width:1280px;width:100%}
 @media (prefers-reduced-motion:reduce){.spin{animation-duration:3s}}
 .sync-st.pos{color:var(--pos)}.sync-st.neg{color:var(--neg)}
 .wsub{color:var(--muted);font-size:12px;text-transform:none;font-weight:500;letter-spacing:0}
-.lg{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:14px;padding:4px 0}
-.lg span i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px}
 .prog{height:12px;background:var(--surface2);border-radius:99px;overflow:hidden}
 .prog i{display:block;height:100%;border-radius:99px;background:var(--accent)}
 .prog i.done{background:var(--pos)}
-.hm{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
-.hm .dow{font-size:11px;color:var(--muted);text-align:center;font-weight:600}
-.hm .hc{aspect-ratio:1/1;min-height:30px;border-radius:8px;border:1px solid transparent;background:var(--surface2);color:var(--muted);font-size:11px;padding:4px 5px;display:flex;align-items:flex-start;justify-content:flex-start}
-.hm button.hc{cursor:pointer}
-.hm button.hc:hover{filter:brightness(1.1)}
-.hm .hc.void{background:transparent}
-.hm .hc.today{border-color:var(--accent);font-weight:700}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px;box-shadow:var(--shadow);min-width:0}
 .card h3{margin:0 0 12px;font-size:14px;color:var(--muted);font-weight:600;letter-spacing:.02em;text-transform:uppercase;display:flex;justify-content:space-between;align-items:center;gap:8px}
 .tile .lbl{color:var(--muted);font-size:13px}
@@ -206,8 +205,8 @@ function applyTheme(){const t=S.settings.theme;if(t==='auto')document.documentEl
 
 /* ---------- formatting ---------- */
 const loc=()=>S.settings.currency==='₹'?'en-IN':'en-US';
-const money=(n,signed=true)=>(n<0?'−':(signed&&n>0?'+':''))+S.settings.currency+new Intl.NumberFormat(loc(),{minimumFractionDigits:2,maximumFractionDigits:2}).format(Math.abs(n));
-const cmoney=n=>(n<0?'−':n>0?'+':'')+S.settings.currency+new Intl.NumberFormat(loc(),{notation:'compact',maximumFractionDigits:1}).format(Math.abs(n));
+const money=(n,signed=true)=>(n<0?'−':(signed&&n>0?'+':''))+esc(S.settings.currency)+new Intl.NumberFormat(loc(),{minimumFractionDigits:2,maximumFractionDigits:2}).format(Math.abs(n));
+const cmoney=n=>(n<0?'−':n>0?'+':'')+esc(S.settings.currency)+new Intl.NumberFormat(loc(),{notation:'compact',maximumFractionDigits:1}).format(Math.abs(n));
 const pct=n=>n==null?'—':(n>0?'+':n<0?'−':'')+Math.abs(n).toFixed(2)+'%';
 const cls=n=>n>0?'pos':n<0?'neg':'';
 const dfmt=s=>pd(s).toLocaleDateString('en',{day:'numeric',month:'short',year:'numeric'});
@@ -298,7 +297,7 @@ function insights(list){
 /* ---------- UI primitives ---------- */
 const dlg=$('#dlg');
 dlg.addEventListener('click',e=>{if(e.target===dlg)dlg.close()});
-function openDlg(h){dlg.onclose=null;dlg.innerHTML=h;dlg.showModal()}
+function openDlg(h){dlg.onclose=null;dlg.returnValue='';dlg.innerHTML=h;dlg.showModal()}
 function ask(title,msg,ok='Confirm'){
  return new Promise(res=>{openDlg(`<form method="dialog" class="dlg-body"><h3>${title}</h3><p class="muted">${msg}</p><div class="dlg-foot"><button class="btn" value="cancel">Cancel</button><button class="btn danger" value="ok">${ok}</button></div></form>`);dlg.onclose=()=>res(dlg.returnValue==='ok')});
 }
@@ -360,34 +359,13 @@ function viewDashboard(){
  if(hist){const ho=chartBase();ho.scales.y.ticks.callback=v=>Number.isInteger(v)?v:'';
   ho.plugins={legend:{display:false},tooltip:{callbacks:{title:i=>{const b=hist[i[0].dataIndex];return cmoney(b.lo)+' to '+cmoney(b.hi)},label:x=>x.parsed.y+(x.parsed.y===1?' trade':' trades')}}};
   jobs.push(()=>mk('c-hist',{type:'bar',data:{labels:hist.map(b=>cmoney(b.lo)),datasets:[{data:hist.map(b=>b.n),backgroundColor:hist.map(b=>b.lo>=0?css('--pos'):css('--neg')),borderRadius:4,categoryPercentage:1,barPercentage:.9}]},options:ho}))}
- // win / loss donut + plan adherence
- const brk=list.length-st.wins-st.losses,onP=list.filter(t=>t.plan),offP=list.filter(t=>!t.plan);
- const avgP=a=>a.length?money(mean(a.map(pnlOf))):'—',avgC=a=>a.length?cls(mean(a.map(pnlOf))):'';
- if(list.length)jobs.push(()=>mk('c-wl',{type:'doughnut',data:{labels:['Winners','Losers','Breakeven'],datasets:[{data:[st.wins,st.losses,brk],backgroundColor:[css('--pos'),css('--neg'),css('--border')],borderColor:css('--surface'),borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{display:false}}}}));
  // monthly goal
  const goal=+S.settings.monthlyGoal||0,mp=sum(all.filter(t=>t.date.startsWith(ym)).map(pnlOf)),nowD=new Date(),dleft=new Date(nowD.getFullYear(),nowD.getMonth()+1,0).getDate()-nowD.getDate(),gpct=goal>0?Math.max(0,mp/goal*100):0;
  // open positions
  const openT=S.trades.filter(t=>!isClosed(t)&&inMkt(t)).sort(sortT).reverse();
  const held=t=>Math.max(0,Math.round((pd(today)-pd(t.date))/864e5))+'d';
- // account balance (deposits + withdrawals + P&L, all markets)
- const hasBal=inv>0||S.cash.length>0;let balPts=[];
- if(hasBal){const ev=new Map(),add=(d,x)=>ev.set(d,(ev.get(d)||0)+x);S.cash.forEach(x=>add(x.date,x.amount));closedTrades().forEach(t=>add(t.date,pnlOf(t)));
-  let b=+S.settings.startCapital||0;[...ev.keys()].sort().forEach(d=>{b+=ev.get(d);balPts.push({d,b})});
-  const bn=balPts.length?balPts[balPts.length-1].b:b;if(rs)balPts=balPts.filter(p=>p.d>=rs);balPts.now=bn}
- if(balPts.length>1)jobs.push(()=>mk('c-bal',{type:'line',data:{labels:balPts.map(p=>dfmt(p.d)),datasets:[{data:balPts.map(p=>p.b),borderColor:css('--accent'),backgroundColor:css('--accent')+'22',fill:true,tension:.2,pointRadius:balPts.length>60?0:3,borderWidth:2}]},options:Object.assign(chartBase(),{plugins:{legend:{display:false},tooltip:{callbacks:{label:x=>'Balance: '+money(x.parsed.y,false)}}}})}));
- // last 5 weeks heat-map (Mon–Sun columns)
- const byDay=new Map(groupBy(all,t=>t.date).map(g=>[g.key,g])),hn=new Date(),hs=new Date(hn.getFullYear(),hn.getMonth(),hn.getDate()-((hn.getDay()+6)%7)-28);
- let hmx=1,hg=0,hr=0,ht=0;const hcs=[];
- for(let i=0;i<35;i++){const d=new Date(hs.getFullYear(),hs.getMonth(),hs.getDate()+i),k=ymd(d),g=byDay.get(k);hcs.push({d,k,g});if(g&&k<=today){hmx=Math.max(hmx,Math.abs(g.pnl));ht+=g.pnl;if(g.pnl>0)hg++;else if(g.pnl<0)hr++}}
- const hmHtml=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(d=>`<div class="dow">${d}</div>`).join('')+hcs.map(({d,k,g})=>{
-  if(k>today)return '<span class="hc void"></span>';
-  const c='hc'+(k===today?' today':''),tt=dfmt(k)+(g?': '+money(g.pnl)+' · '+g.n+' trade'+(g.n>1?'s':''):': no trades');
-  return g?`<button class="${c}" data-act="goday" data-v="${k}" title="${tt}" aria-label="${tt}" style="background:color-mix(in srgb,var(${g.pnl>=0?'--pos':'--neg'}) ${Math.round(25+Math.abs(g.pnl)/hmx*55)}%,var(--surface2));color:var(--text)">${d.getDate()}</button>`:`<span class="${c}" title="${tt}">${d.getDate()}</span>`}).join('');
- // best / worst trades and leaderboards
+ // best / worst trades
  const winners=list.filter(t=>pnlOf(t)>0).sort((a,b)=>pnlOf(b)-pnlOf(a)).slice(0,5),losers=list.filter(t=>pnlOf(t)<0).sort((a,b)=>pnlOf(a)-pnlOf(b)).slice(0,5);
- const leaders=gs=>{gs=gs.slice().sort((a,b)=>b.pnl-a.pnl);const mx=Math.max(1,...gs.map(g=>Math.abs(g.pnl)));
-  return gs.length<=7?barList(gs,mx):barList(gs.slice(0,3),mx)+'<div class="muted" style="text-align:center;line-height:1;letter-spacing:.3em">···</div>'+barList(gs.slice(-3),mx)};
- const stratG=groupBy(list.filter(t=>t.strategy),t=>t.strategy),wdG=groupBy(list,t=>WD[pd(t.date).getDay()]);
  return `
  <div class="grid g-tiles">
   ${snap('Today','no capital set',t=>t.date===today,today)}
@@ -428,38 +406,22 @@ function viewDashboard(){
   <div class="card"><h3>P&amp;L distribution</h3>${hist?`<div class="chart"><canvas id="c-hist"></canvas></div><p class="muted" style="font-size:12px;margin:8px 0 0">Each bar counts trades by net P&amp;L (label = lower end of the range).</p>`:'<p class="muted">Needs at least 2 closed trades in this range.</p>'}</div>
  </div>
  <div class="row-gap sec"><b>Progress &amp; activity</b></div>
- <div class="grid g-3" style="margin-top:12px">
-  <div class="card"><h3>Win / loss</h3>${list.length?`<div class="chart" style="height:170px"><canvas id="c-wl"></canvas></div>
-   <div style="margin-top:10px">
-    <div class="lg"><span><i style="background:var(--pos)"></i>Winners</span><b>${st.wins} · ${Math.round(st.wins/list.length*100)}%</b></div>
-    <div class="lg"><span><i style="background:var(--neg)"></i>Losers</span><b>${st.losses} · ${Math.round(st.losses/list.length*100)}%</b></div>
-    ${brk>0?`<div class="lg"><span><i style="background:var(--border)"></i>Breakeven</span><b>${brk}</b></div>`:''}
-    <div class="lg" style="border-top:1px solid var(--border);margin-top:6px;padding-top:10px"><span>Followed plan</span><b>${onP.length} of ${list.length}</b></div>
-    <div class="lg"><span class="muted">Avg / trade on plan</span><b class="num ${avgC(onP)}">${avgP(onP)}</b></div>
-    <div class="lg"><span class="muted">Avg / trade off plan</span><b class="num ${avgC(offP)}">${avgP(offP)}</b></div>
-   </div>`:'<p class="muted">No closed trades in this range.</p>'}</div>
+ <div class="grid g-2e" style="margin-top:12px">
   <div class="card"><h3>Monthly goal <span class="wsub">${nowD.toLocaleDateString('en',{month:'long'})}</span></h3>
    ${goal>0?`<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:8px"><b class="num ${cls(mp)}" style="font-size:22px">${money(mp)}</b><span class="muted num">of ${money(goal,false)}</span></div>
    <div class="prog" role="progressbar" aria-label="Progress toward monthly goal" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(Math.min(100,gpct))}"><i class="${mp>=goal?'done':''}" style="width:${Math.min(100,gpct)}%"></i></div>
    <p class="muted" style="margin:10px 0 16px;font-size:13px">${mp>=goal?`Goal reached – ${money(mp-goal,false)} above target.`:`${Math.round(gpct)}% there · ${money(goal-mp,false)} to go${dleft>0?` · ${dleft} day${dleft>1?'s':''} left (≈ ${money((goal-mp)/dleft,false)}/day)`:' · last day of the month'}`}</p>`:'<p class="muted" style="margin-top:0">Set a profit target for this month and track your progress here.</p>'}
    <label class="f" for="goal">${goal>0?'Change goal':'Monthly profit goal'} <small>(${esc(S.settings.currency)})</small></label><input id="goal" type="number" min="0" step="any" value="${goal||''}" placeholder="e.g. 20000"></div>
   <div class="card"><h3>Open positions <span class="wsub">${openT.length?openT.length+' open · '+money(sum(openT.map(value)),false)+' exposure':''}</span></h3>${openT.length?`<div class="scroll"><table><thead><tr><th>Symbol</th><th class="r">Qty</th><th class="r">Size</th><th class="r">Held</th></tr></thead><tbody>
-   ${openT.slice(0,6).map(t=>`<tr class="click" data-act="edit" data-id="${t.id}"><td><b>${esc(t.symbol)}</b> <span class="tag ${t.side==='Short'?'short':'long'}">${t.side}</span></td><td class="r num">${plain(t.qty)}</td><td class="r num">${cmoney(value(t)).replace(/^\+/,'')}</td><td class="r num muted">${held(t)}</td></tr>`).join('')}</tbody></table></div>
+   ${openT.slice(0,6).map(t=>`<tr class="click" data-act="edit" data-id="${esc(t.id)}"><td><b>${esc(t.symbol)}</b> <span class="tag ${t.side==='Short'?'short':'long'}">${esc(t.side)}</span></td><td class="r num">${plain(t.qty)}</td><td class="r num">${cmoney(value(t)).replace(/^\+/,'')}</td><td class="r num muted">${held(t)}</td></tr>`).join('')}</tbody></table></div>
    ${openT.length>6?`<p class="muted" style="font-size:13px;margin:10px 0 0">+ ${openT.length-6} more · <a href="#/journal" data-act="showopen">view all</a></p>`:''}`:'<p class="muted">No open positions. Save a trade without an exit price to track it here.</p>'}</div>
- </div>
- <div class="grid g-2e sec">
-  <div class="card"><h3>Account balance <span class="wsub">${hasBal?money(balPts.now,false):''}</span></h3>${hasBal?(balPts.length>1?`<div class="chart"><canvas id="c-bal"></canvas></div><p class="muted" style="font-size:12px;margin:8px 0 0">Starting capital + deposits − withdrawals + P&amp;L · all markets.</p>`:'<p class="muted">Not enough activity in this range to draw a curve.</p>'):'<p class="muted">Set your starting capital under <a href="#/capital">Capital</a> to see your balance over time.</p>'}</div>
-  <div class="card"><h3>Last 5 weeks <span class="wsub">${hg} green · ${hr} red · ${money(ht)}</span></h3><div class="hm">${hmHtml}</div><p class="muted" style="font-size:12px;margin:10px 0 0">Darker = bigger result. Click a day to open it in the Calendar.</p></div>
  </div>
  <div class="row-gap sec"><b>Best &amp; worst</b><span class="muted" style="font-size:13px">follows the range selected above</span></div>
  <div class="grid g-2e" style="margin-top:12px">
   <div class="card"><h3>Top 5 winners</h3>${winners.length?tradeTable(winners,true):'<p class="muted">No winning trades in this range.</p>'}</div>
   <div class="card"><h3>Top 5 losers</h3>${losers.length?tradeTable(losers,true):'<p class="muted">No losing trades in this range.</p>'}</div>
-  <div class="card"><h3>Strategy leaderboard <a href="#/reports" style="font-size:12px;text-transform:none">Full breakdown</a></h3>${stratG.length?leaders(stratG)+'<p class="muted" style="font-size:12px;margin:8px 0 0">Bar = net P&amp;L, number = trades. Best 3 and worst 3.</p>':'<p class="muted">Add a strategy to your trades to see how each one performs.</p>'}</div>
-  <div class="card"><h3>Weekday ranking</h3>${wdG.length?leaders(wdG)+'<p class="muted" style="font-size:12px;margin:8px 0 0">Bar = net P&amp;L, number = trades.</p>':'<p class="muted">No data yet.</p>'}</div>
  </div>
-
-<div class="grid g-2e sec">
+ <div class="grid g-2e sec">
   <div class="card"><h3>Insights from your data</h3>${insights(list).map(x=>`<div class="insight"><span class="dot"></span><span>${x}</span></div>`).join('')}</div>
   <div class="card"><h3>Recent trades <a href="#/journal" style="font-size:12px;text-transform:none">View all</a></h3>${tradeTable(recent,true)}</div>
  </div>`;
@@ -468,10 +430,10 @@ function viewDashboard(){
 function tradeTable(list,compact){
  if(!list.length)return '<p class="muted">No trades match.</p>';
  return `<div class="scroll"><table><thead><tr><th>Date</th><th>Symbol</th>${compact?'':'<th>Side</th><th class="r">Qty</th><th class="r">Entry</th><th class="r">Exit</th>'}<th class="r">P&amp;L</th><th class="r">Return</th>${compact?'':'<th>Strategy</th><th>Mood</th><th></th>'}</tr></thead><tbody>
- ${list.map(t=>{const p=pnlOf(t);return `<tr class="click" data-act="edit" data-id="${t.id}"><td class="num">${dfmt(t.date)}</td><td><b>${esc(t.symbol)}</b>${mktOf(t)!=='Stocks'?` <span class="tag">${mktOf(t)}</span>`:''}${compact?` <span class="tag ${t.side==='Short'?'short':'long'}">${t.side}</span>`:''}</td>
- ${compact?'':`<td><span class="tag ${t.side==='Short'?'short':'long'}">${t.side}</span></td><td class="r num">${plain(t.qty)}</td><td class="r num">${plain(t.entry)}</td><td class="r num">${isClosed(t)?plain(t.exit):'<span class="tag open">Open</span>'}</td>`}
+ ${list.map(t=>{const p=pnlOf(t);return `<tr class="click" data-act="edit" data-id="${esc(t.id)}"><td class="num">${dfmt(t.date)}</td><td><b>${esc(t.symbol)}</b>${mktOf(t)!=='Stocks'?` <span class="tag">${esc(mktOf(t))}</span>`:''}${compact?` <span class="tag ${t.side==='Short'?'short':'long'}">${esc(t.side)}</span>`:''}</td>
+ ${compact?'':`<td><span class="tag ${t.side==='Short'?'short':'long'}">${esc(t.side)}</span></td><td class="r num">${plain(t.qty)}</td><td class="r num">${plain(t.entry)}</td><td class="r num">${isClosed(t)?plain(t.exit):'<span class="tag open">Open</span>'}</td>`}
  <td class="r num ${cls(p)}"><b>${p==null?(compact?'Open':'—'):money(p)}</b></td><td class="r num ${cls(p)}">${pct(retOf(t))}</td>
- ${compact?'':`<td>${esc(t.strategy)||'<span class="muted">—</span>'}${t.plan===false?' <span class="tag" title="Did not follow plan">off-plan</span>':''}</td><td>${esc(t.emotion)||'<span class="muted">—</span>'}</td><td class="r"><button class="btn sm ghost" data-act="del" data-id="${t.id}" title="Delete" aria-label="Delete trade"><svg class="i" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg></button></td>`}</tr>`}).join('')}</tbody></table></div>`;
+ ${compact?'':`<td>${esc(t.strategy)||'<span class="muted">—</span>'}${t.plan===false?' <span class="tag" title="Did not follow plan">off-plan</span>':''}</td><td>${esc(t.emotion)||'<span class="muted">—</span>'}</td><td class="r"><button class="btn sm ghost" data-act="del" data-id="${esc(t.id)}" title="Delete" aria-label="Delete trade"><svg class="i" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg></button></td>`}</tr>`}).join('')}</tbody></table></div>`;
 }
 
 function viewJournal(){
@@ -555,7 +517,7 @@ function viewCapital(){
    <div class="span2"><label class="f">Note <small>(optional)</small></label><input name="note" placeholder="Salary, bonus, profit booked…"></div>
    <div style="align-self:end"><button class="btn primary" style="width:100%;justify-content:center">Add</button></div></form></div>
  </div>
- <div class="card sec"><h3>Money in / out</h3>${led.length?`<table><thead><tr><th>Date</th><th>Type</th><th>Note</th><th class="r">Amount</th><th></th></tr></thead><tbody>${led.map(x=>`<tr><td>${dfmt(x.date)}</td><td><span class="tag ${x.amount>0?'long':'short'}">${x.amount>0?'Deposit':'Withdrawal'}</span></td><td>${esc(x.note)}</td><td class="r num ${cls(x.amount)}">${money(x.amount)}</td><td class="r"><button class="btn sm ghost" data-act="cashdel" data-id="${x.id}" aria-label="Delete">✕</button></td></tr>`).join('')}</tbody></table>`:'<p class="muted">No deposits or withdrawals yet.</p>'}</div>`;
+ <div class="card sec"><h3>Money in / out</h3>${led.length?`<table><thead><tr><th>Date</th><th>Type</th><th>Note</th><th class="r">Amount</th><th></th></tr></thead><tbody>${led.map(x=>`<tr><td>${dfmt(x.date)}</td><td><span class="tag ${x.amount>0?'long':'short'}">${x.amount>0?'Deposit':'Withdrawal'}</span></td><td>${esc(x.note)}</td><td class="r num ${cls(x.amount)}">${money(x.amount)}</td><td class="r"><button class="btn sm ghost" data-act="cashdel" data-id="${esc(x.id)}" aria-label="Delete">✕</button></td></tr>`).join('')}</tbody></table>`:'<p class="muted">No deposits or withdrawals yet.</p>'}</div>`;
 }
 
 function viewSettings(){
@@ -665,7 +627,6 @@ document.addEventListener('click',async e=>{
  if(a==='add')return openTrade(null,v);
  if(a==='edit')return openTrade(id);
  if(a==='range'){D.range=v;return render()}
- if(a==='goday'){const d=pd(v);C.y=d.getFullYear();C.m=d.getMonth();C.sel=v;location.hash='#/calendar';return}
  if(a==='showopen'){e.preventDefault();J.res='open';location.hash='#/journal';return}
  if(a==='per'){D.per=v;return render()}
  if(a==='rtab'){R.tab=v;return render()}

@@ -1,0 +1,5 @@
+# Built by deploy.ps1 – regenerated on every deploy
+site/
+# Firebase CLI cache
+.firebase/
+firebase-debug.log

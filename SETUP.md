@@ -27,19 +27,27 @@ A file on your PC can't be opened from your phone or another computer, and Googl
 from a local file. Easiest free host is Firebase Hosting (same project):
 
 ```powershell
-npm install -g firebase-tools
-firebase login
-firebase use --add                      # choose your project
-New-Item -ItemType Directory -Force site | Out-Null
-Copy-Item stock_journal_main.html site\index.html
-Copy-Item firebase-config.js site\
-firebase deploy --only hosting,firestore:rules
+npx.cmd firebase-tools login           # once: opens the browser to sign in to Google
+npx.cmd firebase-tools use --add       # once: choose your project
+powershell -ExecutionPolicy Bypass -File .\deploy.ps1   # every time you want to publish changes
 ```
 
-The command prints your address (like `https://your-project.web.app`). Open it on any device.
-Repeat the two `Copy-Item` lines + `firebase deploy` whenever you change the journal.
-`firebase.json` is already set up for this. Any other static host (GitHub Pages, Netlify, ...) works too –
-just add its domain under **Authentication > Settings > Authorised domains**.
+(`npx.cmd` and `-ExecutionPolicy Bypass` get around Windows' default "running scripts is disabled"
+error without changing any system setting.)
+
+`deploy.ps1` builds the `site` folder (the journal as `index.html`, the config, the app icon and
+manifest) and deploys it together with the Firestore rules. It prints your address
+(like `https://your-project.web.app`) – share that with anyone who should use the journal.
+Any other static host (GitHub Pages, Netlify, ...) works too – upload the same files and add its domain
+under **Authentication > Settings > Authorised domains**.
+
+## Install it like an app
+
+On the hosted address:
+- **Android / Chrome / Edge:** browser menu > **Install app** (or "Add to Home screen").
+- **iPhone / iPad (Safari):** Share > **Add to Home Screen**.
+
+It then opens full-screen from its own icon and keeps the user signed in.
 
 ## How it behaves
 
@@ -53,6 +61,13 @@ just add its domain under **Authentication > Settings > Authorised domains**.
 - **Theme** is a per-device choice and is not synced. Everything else (trades, deposits, capital,
   currency, monthly goal) is.
 - **Backups:** *Settings > Backup (JSON)* still works and is still a good idea.
+
+## Free-plan limits
+
+The free Spark plan allows 50,000 document reads and 20,000 writes per day and 1 GB of stored data.
+Each trade is one document; opening the journal reads the user's trades. That comfortably covers
+dozens of active users. If you outgrow it, switch to the pay-as-you-go Blaze plan (same free allowance,
+then a small per-use charge) – no code changes needed.
 
 ## Privacy
 
