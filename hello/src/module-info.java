@@ -1,9 +1,0 @@
-/**
- * 
- */
-/**
- * @author balla
- *
- */
-module hello {
-}
