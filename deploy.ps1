@@ -14,7 +14,7 @@ if ($cfg -match 'apiKey:\s*""' -or $cfg -match 'projectId:\s*""') {
 if (Test-Path site) { Remove-Item -Recurse -Force site }
 New-Item -ItemType Directory site | Out-Null
 Copy-Item stock_journal_main.html site\index.html
-Copy-Item firebase-config.js, manifest.webmanifest site\
+Copy-Item firebase-config.js, manifest.webmanifest, sw.js site\
 Copy-Item icons site\icons -Recurse
 
 npx.cmd --yes firebase-tools deploy --only "hosting,firestore:rules"

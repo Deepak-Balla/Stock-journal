@@ -120,6 +120,7 @@ dialog::backdrop{background:rgba(10,12,18,.55)}
 .cc .d{font-size:12px;color:var(--muted)}
 .cc .p{font-weight:700;font-size:14px;font-variant-numeric:tabular-nums}
 .cc .n{font-size:11px;color:var(--muted)}
+.ndot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent);margin-left:5px;vertical-align:middle}
 button.cc{cursor:pointer;font:inherit;color:inherit}
 .cc.pos{background:var(--pos-bg);color:var(--pos)}.cc.neg{background:var(--neg-bg);color:var(--neg)}
 .cc.sel{border-color:var(--accent)}
@@ -243,8 +244,8 @@ let S=load();
 function load(){
  try{const d=JSON.parse(localStorage.getItem(KEY));if(d&&Array.isArray(d.trades)){d.trades=d.trades.filter(t=>!t.sample);d.cash=(d.cash||[]).filter(x=>!x.sample);
   const seen=new Map();d.trades.forEach(t=>{if(t.strategy){t.strategy=t.strategy.trim();const k=t.strategy.toLowerCase();if(!seen.has(k))seen.set(k,t.strategy);t.strategy=seen.get(k)}}); // merge case-variants
-  return{trades:d.trades,cash:d.cash||[],settings:Object.assign({currency:defIn()?'₹':'$',startCapital:0,theme:'auto'},d.settings)}}}catch(e){}
- return{trades:[],cash:[],settings:{currency:defIn()?'₹':'$',startCapital:0,theme:'auto'}};
+  return{trades:d.trades,cash:d.cash||[],days:d.days||[],settings:Object.assign({currency:defIn()?'₹':'$',startCapital:0,theme:'auto'},d.settings)}}}catch(e){}
+ return{trades:[],cash:[],days:[],settings:{currency:defIn()?'₹':'$',startCapital:0,theme:'auto'}};
 }
 function save(){Cloud.push();try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast('Could not save – browser storage is blocked')}}
 function applyTheme(){const t=S.settings.theme;if(t==='auto')document.documentElement.removeAttribute('data-theme');else document.documentElement.dataset.theme=t}
@@ -505,10 +506,22 @@ function paintJournal(){
  el.innerHTML=`<p class="muted" style="margin:0 0 8px">${l.length} trades · net <b class="${cls(s.pnl)}">${money(s.pnl)}</b> · win rate ${s.winRate.toFixed(0)}%</p>`+tradeTable(l,false);
 }
 
+const DAY_PROMPTS='How did you feel? What went well? What will you do differently tomorrow?';
+const dayNote=d=>{const n=(S.days.find(x=>x.id===d)||{}).note||'';
+ return `<label class="f" for="daynote" style="margin-top:16px">Notes for the day <small id="dn-st" class="muted" aria-live="polite"></small></label><textarea id="daynote" data-day="${esc(d)}" rows="4" maxlength="5000" placeholder="${DAY_PROMPTS}">${esc(n)}</textarea>`};
+let dnT;
+function saveDayNote(el,now){
+ clearTimeout(dnT);const st=$('#dn-st');if(st)st.textContent='Saving…';
+ dnT=setTimeout(()=>{const d=el.dataset.day,n=el.value.trim(),i=S.days.findIndex(x=>x.id===d);
+  if(n){if(i<0)S.days.push({id:d,date:d,note:n});else S.days[i].note=n}else if(i>=0)S.days.splice(i,1);
+  save();const s=$('#dn-st');if(s)s.textContent='Saved';
+  const c=document.querySelector(`.cc[data-v="${d}"] .d`);if(c){const has=!!c.querySelector('.ndot');if(!!n!==has){if(n)c.insertAdjacentHTML('beforeend','<i class="ndot" title="Has a note"></i>');else c.querySelector('.ndot').remove()}}
+ },now?0:700)}
+
 function viewCalendar(){
  if(!S.trades.length)return emptyState();
  const{y,m}=C,first=new Date(y,m,1),off=(first.getDay()+6)%7,dim=new Date(y,m+1,0).getDate(),weeks=Math.ceil((off+dim)/7);
- const byDay=new Map(groupBy(scoped(),t=>t.date).map(g=>[g.key,g]));
+ const byDay=new Map(groupBy(scoped(),t=>t.date).map(g=>[g.key,g])),noted=new Set(S.days.filter(x=>x.note).map(x=>x.id)),dot=k=>noted.has(k)?'<i class="ndot" title="Has a note"></i>':'';
  const today=ymd(new Date()),mk=`${y}-${pad(m+1)}`;
  const mg=[...byDay.values()].filter(g=>g.key.startsWith(mk)),ms=stats(mg.flatMap(g=>g.trades));
  let h=['Mon','Tue','Wed','Thu','Fri','Sat','Sun','Week'].map(d=>`<div class="dow">${d}</div>`).join('');
@@ -516,14 +529,14 @@ function viewCalendar(){
   for(let i=0;i<7;i++){const dn=w*7+i-off+1;
    if(dn<1||dn>dim){h+='<div class="cc empty"></div>';continue}
    const key=`${mk}-${pad(dn)}`,g=byDay.get(key);if(g){wp+=g.pnl;wn+=g.n}
-   h+=g?`<button class="cc ${g.pnl>=0?'pos':'neg'} ${C.sel===key?'sel':''} ${key===today?'today':''}" data-act="day" data-v="${key}" aria-label="${dfmt(key)}: ${money(g.pnl)}"><span class="d">${dn}</span><span class="p">${cmoney(g.pnl)}</span><span class="n">${g.n} trade${g.n>1?'s':''}</span></button>`
-    :`<button class="cc ${C.sel===key?'sel':''} ${key===today?'today':''}" data-act="day" data-v="${key}" aria-label="${dfmt(key)}"><span class="d">${dn}</span></button>`}
+   h+=g?`<button class="cc ${g.pnl>=0?'pos':'neg'} ${C.sel===key?'sel':''} ${key===today?'today':''}" data-act="day" data-v="${key}" aria-label="${dfmt(key)}: ${money(g.pnl)}"><span class="d">${dn}${dot(key)}</span><span class="p">${cmoney(g.pnl)}</span><span class="n">${g.n} trade${g.n>1?'s':''}</span></button>`
+    :`<button class="cc ${C.sel===key?'sel':''} ${key===today?'today':''}" data-act="day" data-v="${key}" aria-label="${dfmt(key)}${noted.has(key)?' (has a note)':''}"><span class="d">${dn}${dot(key)}</span></button>`}
   h+=`<div class="cc wk"><span class="d">Week ${w+1}</span><span class="p ${cls(wp)}">${wn?cmoney(wp):'—'}</span><span class="n">${wn?wn+' trades':''}</span></div>`}
  const sel=C.sel&&C.sel.startsWith(mk)?C.sel:null,dayT=sel?S.trades.filter(t=>t.date===sel&&inMkt(t)).sort(sortT):[];
  return `<div class="cal-head"><button class="btn" data-act="calnav" data-v="-1" aria-label="Previous month">‹</button><h2>${first.toLocaleDateString('en',{month:'long',year:'numeric'})}</h2><button class="btn" data-act="calnav" data-v="1" aria-label="Next month">›</button><button class="btn ghost" data-act="caltoday">Today</button>
   <span style="margin-left:auto" class="muted">Month: <b class="${cls(ms.pnl)}">${money(ms.pnl)}</b> · ${mg.length} trading days · ${ms.n?ms.winRate.toFixed(0)+'% win rate':'no trades'}${mg.length?` · avg ${money(ms.pnl/mg.length)}/day`:''}</span></div>
   <div class="cal">${h}</div>
-  ${sel?`<div class="card sec"><h3>${dfmt(sel)} <button class="btn sm primary" data-act="add" data-v="${sel}">Add trade on this day</button></h3>${dayT.length?tradeTable(dayT,false):'<p class="muted">No trades on this day.</p>'}</div>`:'<p class="muted sec">Click a day to see its trades or add one.</p>'}`;
+  ${sel?`<div class="card sec"><h3>${dfmt(sel)} <button class="btn sm primary" data-act="add" data-v="${sel}">Add trade on this day</button></h3>${dayT.length?tradeTable(dayT,false):'<p class="muted">No trades on this day.</p>'}${dayNote(sel)}</div>`:'<p class="muted sec">Click a day to see its trades, add one, or write a note about it.</p>'}`;
 }
 
 function viewReports(){
@@ -988,7 +1001,7 @@ document.addEventListener('click',async e=>{
  if(a==='importf')return impStart();
  if(a==='impgo')return impApply();
  if(a==='dlgclose')return dlg.close();
- if(a==='wipe'&&await ask('Delete everything?','This permanently removes all trades, deposits and settings from '+(Cloud.on?'your account (all devices)':'this browser')+'. Make a backup first if unsure.','Delete all')){S={trades:[],cash:[],settings:{currency:S.settings.currency,startCapital:0,theme:S.settings.theme}};save();render()}
+ if(a==='wipe'&&await ask('Delete everything?','This permanently removes all trades, deposits and settings from '+(Cloud.on?'your account (all devices)':'this browser')+'. Make a backup first if unsure.','Delete all')){S={trades:[],cash:[],days:[],settings:{currency:S.settings.currency,startCapital:0,theme:S.settings.theme}};save();render()}
 });
 document.addEventListener('submit',e=>{
  if(e.target.id!=='cf')return;e.preventDefault();const f=e.target.elements,amt=+f.amount.value;
@@ -997,7 +1010,9 @@ document.addEventListener('submit',e=>{
 document.addEventListener('input',e=>{
  const i=e.target.id;
  if(i==='fq'){J.q=e.target.value;paintJournal()}
+ if(i==='daynote')saveDayNote(e.target);
 });
+document.addEventListener('focusout',e=>{if(e.target.id==='daynote')saveDayNote(e.target,true)});
 document.addEventListener('change',e=>{
  const i=e.target.id,v=e.target.value;
  if(i==='gm'){G.market=v;render()}
@@ -1009,7 +1024,7 @@ document.addEventListener('change',e=>{
  if(IMP&&e.target.dataset.opt){const k=e.target.dataset.opt;IMP.o[k]=e.target.type==='checkbox'?e.target.checked:k==='dmy'?v==='1':v;return impPaint()}
  if(i==='imp'&&e.target.files[0]){
   const rd=new FileReader();rd.onload=async()=>{try{const d=JSON.parse(rd.result);if(!Array.isArray(d.trades))throw 0;
-   if(await ask('Restore backup?',`This replaces your current data with ${d.trades.length} trades from the file.`,'Replace')){S={trades:d.trades,cash:d.cash||[],settings:Object.assign(S.settings,d.settings)};save();applyTheme();render();toast('Backup restored')}}catch(x){toast('That file is not a valid backup')}};
+   if(await ask('Restore backup?',`This replaces your current data with ${d.trades.length} trades from the file.`,'Replace')){S={trades:d.trades,cash:d.cash||[],days:d.days||[],settings:Object.assign(S.settings,d.settings)};save();applyTheme();render();toast('Backup restored')}}catch(x){toast('That file is not a valid backup')}};
   rd.readAsText(e.target.files[0]);e.target.value='';
  }
 });
@@ -1029,7 +1044,7 @@ document.addEventListener('drop',e=>{if(!e.dataTransfer||!e.dataTransfer.files.l
 const Cloud=(()=>{
  const cfg=window.FIREBASE_CONFIG||{},configured=!!(cfg.apiKey&&cfg.projectId),enabled=configured&&!!window.firebase;
  const HINT0='<div class="hint">Data stays in your browser.<br>Press <b>N</b> to add a trade.</div>';
- const COLS=['trades','cash'];
+ const COLS=['trades','cash','days'];
  const LBL={loading:'Connecting…',syncing:'Syncing…',synced:'Synced',offline:'Offline – will sync when you reconnect',error:'Sync problem – check connection'};
  const EM={'auth/invalid-credential':"That email and password don't match.",'auth/wrong-password':"That email and password don't match.",'auth/user-not-found':"That email and password don't match.",
   'auth/invalid-email':'Enter a valid email address.','auth/email-already-in-use':'An account with this email already exists – try signing in.','auth/weak-password':'Use a password with at least 6 characters.',
@@ -1038,7 +1053,7 @@ const Cloud=(()=>{
   'auth/operation-not-allowed':"This sign-in method isn't switched on in your Firebase project yet.",'auth/unauthorized-domain':"This web address isn't authorised in Firebase (Authentication > Settings > Authorised domains).",
   'auth/operation-not-supported-in-this-environment':'Google sign-in needs the journal to be opened from a web address, not a local file.','auth/missing-password':'Enter your password.'};
  let auth,db,user=null,ready=false,status='loading',unsubs=[],gate,gmode='in',slowT;
- let known={trades:new Map(),cash:new Map(),settings:undefined};
+ let known={trades:new Map(),cash:new Map(),days:new Map(),settings:undefined};
  const clean=o=>JSON.parse(JSON.stringify(o));
  const sk=o=>JSON.stringify(o,(k,v)=>v&&typeof v==='object'&&!Array.isArray(v)?Object.keys(v).sort().reduce((a,x)=>(a[x]=v[x],a),{}):v);
  const setPayload=()=>{const r=Object.assign({},S.settings);delete r.theme;return clean(r)}; // theme stays a per-device choice
@@ -1072,7 +1087,7 @@ const Cloud=(()=>{
 
  /* ----- receive remote changes ----- */
  function listen(){
-  const base=db.collection('users').doc(user.uid),seen={};let waiting=3;
+  const base=db.collection('users').doc(user.uid),seen={};let waiting=COLS.length+1;
   const first=k=>{if(!seen[k]){seen[k]=1;if(--waiting===0)onReady();return true}return false};
   const live=snap=>{if(ready&&!snap.metadata.hasPendingWrites&&!snap.metadata.fromCache&&navigator.onLine)setStatus('synced')};
   const fail=e=>{setStatus('error');if(!ready)showGate('error',e&&e.code==='permission-denied'?"Your Firebase security rules are blocking access. Publish the rules from firestore.rules (see SETUP.md).":"Couldn't reach your journal ("+((e&&(e.code||e.message))||'error')+').')};
@@ -1100,13 +1115,13 @@ const Cloud=(()=>{
  async function legacy(){
   const DK='stockJournal.migrated.'+user.uid;let d;
   try{if(localStorage.getItem(DK))return;d=JSON.parse(localStorage.getItem('stockJournal.v1'))}catch(e){return}
-  const t=((d&&d.trades)||[]).filter(x=>x&&!x.sample&&x.id),c=((d&&d.cash)||[]).filter(x=>x&&!x.sample&&x.id);
-  if(!t.length&&!c.length)return;
+  const t=((d&&d.trades)||[]).filter(x=>x&&!x.sample&&x.id),c=((d&&d.cash)||[]).filter(x=>x&&!x.sample&&x.id),dn=((d&&d.days)||[]).filter(x=>x&&x.id&&x.note);
+  if(!t.length&&!c.length&&!dn.length)return;
   const yes=await new Promise(res=>{openDlg(`<form method="dialog" class="dlg-body"><h3>Move your saved journal to your account?</h3><p class="muted">We found <b>${t.length} trade${t.length===1?'':'s'}</b>${c.length?` and <b>${c.length} deposit/withdrawal${c.length===1?'':'s'}</b>`:''} saved in this browser from before you signed in. Upload them so they are available on all your devices?</p><div class="dlg-foot"><button class="btn" value="no">Not now</button><button class="btn primary" value="ok" autofocus>Upload to my account</button></div></form>`);dlg.onclose=()=>res(dlg.returnValue==='ok')});
   try{localStorage.setItem(DK,yes?'uploaded':'skipped')}catch(e){}
   if(!yes)return;
   const had=S.trades.length+S.cash.length>0,ids=new Set([...S.trades,...S.cash].map(x=>x.id));
-  t.forEach(x=>{if(!ids.has(x.id))S.trades.push(x)});c.forEach(x=>{if(!ids.has(x.id))S.cash.push(x)});
+  t.forEach(x=>{if(!ids.has(x.id))S.trades.push(x)});c.forEach(x=>{if(!ids.has(x.id))S.cash.push(x)});dn.forEach(x=>{if(!S.days.some(y=>y.id===x.id))S.days.push(x)});
   if(!had&&d.settings){['currency','startCapital','monthlyGoal','lastMarket'].forEach(k=>{if(d.settings[k]!=null)S.settings[k]=d.settings[k]})}
   save();render();toast('Uploaded to your account');
  }
@@ -1164,15 +1179,40 @@ const Cloud=(()=>{
   try{await auth.signOut();await db.terminate();await db.clearPersistence()}catch(e){}
   location.hash='';location.reload();
  }
+ /* ----- delete account: confirm, sign in again, erase all cloud data, then remove the login ----- */
+ async function reauth(){
+  const pw=(user.providerData||[]).some(p=>p.providerId==='password');
+  if(!pw){await user.reauthenticateWithPopup(new firebase.auth.GoogleAuthProvider());return true}
+  const p=await new Promise(res=>{openDlg(`<form method="dialog" class="dlg-body"><h3>Confirm it's you</h3><p class="muted">Enter the password for <b>${esc(user.email)}</b> to delete your account.</p><label class="f" for="ra-pw">Password</label><input id="ra-pw" type="password" autocomplete="current-password" autofocus><div class="dlg-foot"><button type="button" class="btn" data-act="dlgclose">Cancel</button><button class="btn danger" value="ok">Delete my account</button></div></form>`);
+   dlg.onclose=()=>res(dlg.returnValue==='ok'?$('#ra-pw').value:null)});
+  if(!p)return false;
+  await user.reauthenticateWithCredential(firebase.auth.EmailAuthProvider.credential(user.email,p));return true;
+ }
+ async function deleteAccount(){
+  if(!await ask('Delete your account?','This permanently deletes your login and every trade, deposit, note and setting saved to it, on all devices. It cannot be undone – download a backup first if you might want your data later.','Continue'))return;
+  try{if(!await reauth())return}catch(x){return toast(ERR(x)||'Sign-in was cancelled')}
+  setStatus('syncing');showGate('sync','Deleting your account…');
+  try{
+   unsubs.forEach(f=>f());unsubs=[];ready=false;
+   const base=db.collection('users').doc(user.uid);
+   for(const c of [...COLS,'meta']){const s=await base.collection(c).get();
+    for(let i=0;i<s.docs.length;i+=400){const b=db.batch();s.docs.slice(i,i+400).forEach(d=>b.delete(d.ref));await b.commit()}}
+   await user.delete();
+   try{localStorage.removeItem(KEY);localStorage.removeItem('stockJournal.migrated.'+user.uid)}catch(e){}
+   try{await db.terminate();await db.clearPersistence()}catch(e){}
+   alert('Your account and all its data have been deleted.');location.hash='';location.reload();
+  }catch(x){showGate('error','Could not finish deleting your account ('+((x&&(x.code||x.message))||'error')+'). Press "Try again" and repeat the delete – nothing you still see was lost.')}
+ }
  document.addEventListener('click',e=>{const b=e.target.closest('[data-cloud]');if(!b||!enabled||!user)return;const a=b.dataset.cloud;
   if(a==='signout')signOut();
+  if(a==='delacct')deleteAccount();
   if(a==='reset')auth.sendPasswordResetEmail(user.email).then(()=>toast('Password reset email sent')).catch(x=>toast(ERR(x)||'Could not send the email'));
  });
 
  /* ----- start-up ----- */
  function start(){
-  KEY='stockJournal.cloud.'+user.uid;ready=false;known={trades:new Map(),cash:new Map(),settings:undefined};
-  S={trades:[],cash:[],settings:{currency:defIn()?'₹':'$',startCapital:0,theme:savedTheme()}};
+  KEY='stockJournal.cloud.'+user.uid;ready=false;known={trades:new Map(),cash:new Map(),days:new Map(),settings:undefined};
+  S={trades:[],cash:[],days:[],settings:{currency:defIn()?'₹':'$',startCapital:0,theme:savedTheme()}};
   applyTheme();setStatus('loading');showGate('sync','Opening your journal…');listen();
  }
  function boot(){
@@ -1195,11 +1235,13 @@ const Cloud=(()=>{
   hint:()=>enabled&&user?`<div class="hint"><b style="display:block;overflow:hidden;text-overflow:ellipsis;color:var(--text)" title="${esc(who())}">${esc(who())}</b><span class="sync-st">${LBL[status]}</span><br><button class="btn ghost sm" data-cloud="signout" style="padding:2px 0;margin:2px 0 6px">Sign out</button><br>Press <b>N</b> to add a trade.</div>`:HINT0,
   dataNote:()=>enabled&&user?'Your journal is saved to your account and syncs between your devices. A backup file is still a good idea.':'Everything is stored only in this browser. Export a backup regularly.',
   accountCard:()=>enabled&&user
-   ?`<div class="card sec"><h3>Account</h3><div class="row-gap" style="justify-content:space-between"><div style="min-width:0"><b>${esc(who())}</b><div class="muted" style="font-size:13px"><span class="sync-st ${status==='synced'?'pos':status==='error'?'neg':''}">${LBL[status]}</span> · saved to your account and available on every device you sign in on</div></div><div class="row-gap">${(user.providerData||[]).some(p=>p.providerId==='password')?'<button class="btn" data-cloud="reset">Send password reset email</button>':''}<button class="btn" data-cloud="signout">Sign out</button></div></div></div>`
+   ?`<div class="card sec"><h3>Account</h3><div class="row-gap" style="justify-content:space-between"><div style="min-width:0"><b>${esc(who())}</b><div class="muted" style="font-size:13px"><span class="sync-st ${status==='synced'?'pos':status==='error'?'neg':''}">${LBL[status]}</span> · saved to your account and available on every device you sign in on</div></div><div class="row-gap">${(user.providerData||[]).some(p=>p.providerId==='password')?'<button class="btn" data-cloud="reset">Send password reset email</button>':''}<button class="btn" data-cloud="signout">Sign out</button></div></div>
+    <p class="muted" style="font-size:13px;margin:16px 0 0;padding-top:14px;border-top:1px solid var(--border)">Done with the journal? <button class="btn ghost sm" data-cloud="delacct" style="padding:2px 4px;color:var(--neg)">Delete my account</button> removes your login and all your data for good.</p></div>`
    :`<div class="card sec"><h3>Cloud sync</h3><p class="muted" style="margin:0">${configured?"The sign-in library couldn't be loaded, so the journal is working on this device only.":'Not set up – your journal is stored only in this browser. To add personal logins and sync across devices, follow <b>SETUP.md</b> (it takes about 10 minutes) and fill in <b>firebase-config.js</b>.'}</p></div>`
  };
 })();
 applyTheme();Cloud.boot();
+if('serviceWorker' in navigator&&/^https?:/.test(location.protocol))addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{})); // opens offline once installed
 </script>
 </body>
 </html>

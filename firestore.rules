@@ -2,11 +2,22 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     // Each signed-in user can read and write ONLY their own journal:
-    //   users/{uid}/trades/{id}, users/{uid}/cash/{id}, users/{uid}/meta/settings
+    //   users/{uid}/trades/{id}, users/{uid}/cash/{id}, users/{uid}/days/{date}, users/{uid}/meta/settings
+    function owner(uid) { return request.auth != null && request.auth.uid == uid; }
+
+    // Size limits stop one account from filling the shared free quota with junk.
+    function shortText(d, f) { return !(d.get(f, null) is string) || d[f].size() <= 20000; }
+    function sane(d, docId) {
+      return docId.size() <= 64
+          && d.size() <= 40
+          && shortText(d, 'notes') && shortText(d, 'note')
+          && shortText(d, 'symbol') && shortText(d, 'strategy') && shortText(d, 'emotion');
+    }
+
     match /users/{uid}/{col}/{docId} {
-      allow read, write: if request.auth != null
-                         && request.auth.uid == uid
-                         && col in ['trades', 'cash', 'meta'];
+      allow read, delete: if owner(uid) && col in ['trades', 'cash', 'days', 'meta'];
+      allow create, update: if owner(uid) && col in ['trades', 'cash', 'days', 'meta']
+                            && sane(request.resource.data, docId);
     }
     // Everything else is closed.
   }

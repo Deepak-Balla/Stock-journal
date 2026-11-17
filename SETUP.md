@@ -54,7 +54,12 @@ It then opens full-screen from its own icon and keeps the user signed in.
 - **Sign in / create account** with email + password or Google. A verification email is sent on sign-up
   (not required to use the journal). "Forgot password?" is on the sign-in screen.
 - **Live sync:** add or edit a trade on one device and the others update within a second or two.
-- **Offline:** you can keep logging trades without internet; they upload when you reconnect.
+- **Offline:** once the journal has been opened online on a device, it also opens without internet
+  (`sw.js` keeps a copy of the app). Trades you log offline upload when you reconnect.
+- **Daily notes:** in *Calendar*, pick a day and write how it went. Notes save as you type, sync like
+  trades, and days with a note get a small dot.
+- **Delete account** (Settings > Account): asks for the password (or Google sign-in) again, then
+  permanently erases the user's data and login.
 - **First sign-in on a device that already has journal data in its browser:** you're asked whether to
   upload it to your account. Nothing is uploaded without a yes.
 - **Sign out** (Settings or the sidebar) removes the local copy from that device – safe on shared computers.
@@ -72,7 +77,8 @@ then a small per-use charge) – no code changes needed.
 ## Privacy
 
 Your journal is stored in *your* Firebase project (Google Cloud). The rules allow each signed-in user to
-read and write only their own data (`users/<their id>/...`), but whoever owns the Firebase project can see
+read and write only their own data (`users/<their id>/...`) and cap the size of each entry (so one account
+can't fill the shared free quota), but whoever owns the Firebase project can see
 the data in the console. If you share the project or the journal with others, each person gets a separate,
 private journal under their own login.
 
