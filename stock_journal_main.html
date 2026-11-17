@@ -25,7 +25,7 @@
 html,body{margin:0}
 body{background:var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
 button,input,select,textarea{font:inherit;color:inherit}
-.app{display:grid;grid-template-columns:230px 1fr;min-height:100vh}
+.app{display:grid;grid-template-columns:230px minmax(0,1fr);min-height:100vh}
 .side{position:sticky;top:0;height:100vh;padding:20px 14px;border-right:1px solid var(--border);background:var(--surface);display:flex;flex-direction:column;gap:6px}
 .brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:17px;padding:4px 10px 18px}
 .logo{width:30px;height:30px;border-radius:9px;background:var(--accent);display:grid;place-items:center;color:#fff}
@@ -34,7 +34,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .side a.on{background:var(--accent-weak);color:var(--accent)}
 .side .hint{margin-top:auto;font-size:12px;color:var(--muted);padding:10px}
 svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
-main{padding:24px 28px 60px;max-width:1280px;width:100%}
+main{padding:24px 28px 60px;max-width:1280px;width:100%;min-width:0}
 .top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px}
 .top h1{font-size:24px;margin:0}
 .top .sub{color:var(--muted);font-size:13px}
@@ -141,12 +141,57 @@ button.cc{cursor:pointer;font:inherit;color:inherit}
 .fab{display:none}
 .sec{margin-top:26px}
 .row-gap{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+/* import */
+.sr{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden}
+.drop{display:flex;flex-direction:column;align-items:center;gap:6px;border:2px dashed var(--border);border-radius:14px;padding:30px 16px;text-align:center;cursor:pointer;color:var(--muted)}
+.drop:hover,.drop.over,.drop:focus-within{border-color:var(--accent);background:var(--accent-weak);color:var(--accent)}
+.drop b{color:var(--text);font-size:16px}
+details.box{border:1px solid var(--border);border-radius:12px;padding:10px 14px;margin-top:14px}
+details.box summary{cursor:pointer;font-weight:500}
+.imp-opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:6px}
+.imp-opts .check{padding-top:0;align-self:end;min-height:40px}
+.imp-map{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px 14px;margin-top:12px}
+.imp-map label{font-size:12px;color:var(--muted);display:block;margin-bottom:3px}
+.imp-map label b{color:var(--neg);font-weight:600}
+.imp-map select{padding:6px 8px;font-size:13px}
+.msgs{margin:12px 0 0;padding:0;list-style:none;font-size:13px}
+.msgs li{padding:6px 10px;border-radius:8px;margin-top:6px;background:var(--surface2);color:var(--muted)}
+.msgs li.w{background:var(--neg-bg);color:var(--neg)}
+/* journal as cards (phones) */
+.tl{display:flex;flex-direction:column}
+.tc{padding:12px 2px;border-bottom:1px solid var(--border);cursor:pointer;border-radius:8px}
+.tc:last-child{border-bottom:0}
+.tc:active{background:var(--surface2)}
+.tc-a,.tc-b{display:flex;align-items:center;gap:6px;min-width:0}
+.tc-a b{font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tc-p{margin-left:auto;font-weight:700;white-space:nowrap}
+.tc-b{font-size:13px;color:var(--muted);margin-top:4px;justify-content:space-between}
+.tc-b span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tc-c{font-size:12px;color:var(--muted);margin-top:3px}
 @media (max-width:960px){.g-2,.g-2e{grid-template-columns:1fr}}
 @media (max-width:820px){
- .app{grid-template-columns:1fr}
+ .app{grid-template-columns:minmax(0,1fr)}
+ .top .btn span{display:none}
+ .top{gap:8px}
+ .top>div:first-child{min-width:0}
+ .top h1{font-size:22px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ .top .row-gap{gap:8px}
+ #gm{max-width:116px;padding:9px 6px;text-overflow:ellipsis}
+ .card{padding:14px}
+ .card h3{flex-wrap:wrap}
+ .filters{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+ .filters input,.filters select{min-width:0;width:100%}
+ .filters #fq{grid-column:1/-1}
+ .filters .btn{justify-content:center;grid-column:1/-1}
+ .hs{display:none}
+ table{font-size:13px}
+ th{padding:8px 6px}td{padding:9px 6px}
+ .imp-map{grid-template-columns:1fr 1fr}
+ .preview{gap:14px}
  .side{position:fixed;top:auto;bottom:0;left:0;right:0;height:auto;flex-direction:row;justify-content:space-around;padding:6px 6px calc(6px + env(safe-area-inset-bottom));border-right:0;border-top:1px solid var(--border);z-index:20}
  .side .brand,.side .hint{display:none}
- .side a{flex-direction:column;gap:2px;font-size:11px;padding:6px 8px}
+ .side a{flex:1 1 0;min-width:0;flex-direction:column;gap:2px;font-size:10.5px;letter-spacing:-.1px;padding:6px 0;text-align:center}
+ .side a span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
  main{padding:16px 16px 100px}
  .top .btn.primary span{display:none}
  .fg{grid-template-columns:1fr 1fr}.fg .span3{grid-column:span 2}
@@ -162,6 +207,7 @@ button.cc{cursor:pointer;font:inherit;color:inherit}
  <main>
   <div class="top"><div><h1 id="title"></h1><div class="sub" id="sub"></div></div>
    <div class="row-gap" style="flex-wrap:nowrap"><select id="gm" aria-label="Filter by market" style="width:auto"></select>
+   <button class="btn" data-act="importf" title="Import trades from a CSV or Excel file"><svg class="i" viewBox="0 0 24 24"><path d="M12 15V3M7 8l5-5 5 5"/><path d="M4 15v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/></svg><span>Import</span></button>
    <button class="btn primary" data-act="add" title="Shortcut: N"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span>Add trade</span></button></div></div>
   <div id="view"></div>
  </main>
@@ -210,7 +256,8 @@ const cmoney=n=>(n<0?'−':n>0?'+':'')+esc(S.settings.currency)+new Intl.NumberF
 const pct=n=>n==null?'—':(n>0?'+':n<0?'−':'')+Math.abs(n).toFixed(2)+'%';
 const cls=n=>n>0?'pos':n<0?'neg':'';
 const dfmt=s=>pd(s).toLocaleDateString('en',{day:'numeric',month:'short',year:'numeric'});
-const plain=n=>new Intl.NumberFormat(loc(),{maximumFractionDigits:2}).format(n);
+const plain=n=>{const a=Math.abs(n);return new Intl.NumberFormat(loc(),{maximumFractionDigits:a>=1000?2:a>=1?4:8}).format(n)}; // keeps small crypto sizes readable
+const small=()=>matchMedia('(max-width:820px)').matches;
 
 /* ---------- trade math ---------- */
 const dir=t=>t.side==='Short'?-1:1;
@@ -301,14 +348,14 @@ function openDlg(h){dlg.onclose=null;dlg.returnValue='';dlg.innerHTML=h;dlg.show
 function ask(title,msg,ok='Confirm'){
  return new Promise(res=>{openDlg(`<form method="dialog" class="dlg-body"><h3>${title}</h3><p class="muted">${msg}</p><div class="dlg-foot"><button class="btn" value="cancel">Cancel</button><button class="btn danger" value="ok">${ok}</button></div></form>`);dlg.onclose=()=>res(dlg.returnValue==='ok')});
 }
-let tt;function toast(m,label,fn){const t=$('#toast');t.innerHTML=`<span>${esc(m)}</span>`+(label?`<button>${label}</button>`:'');t.style.display='flex';if(label)t.querySelector('button').onclick=()=>{fn();t.style.display='none'};clearTimeout(tt);tt=setTimeout(()=>t.style.display='none',5000)}
+let tt;function toast(m,label,fn,ms){const t=$('#toast');t.innerHTML=`<span>${esc(m)}</span>`+(label?`<button>${label}</button>`:'');t.style.display='flex';if(label)t.querySelector('button').onclick=()=>{fn();t.style.display='none'};clearTimeout(tt);tt=setTimeout(()=>t.style.display='none',ms||5000)}
 const tile=(l,v,meta,c)=>`<div class="card tile"><div class="lbl">${l}</div><div class="val ${c||''}">${v}</div><div class="meta">${meta}</div></div>`;
 const seg=(act,cur,opts)=>`<div class="seg">${opts.map(([v,l])=>`<button data-act="${act}" data-v="${v}" class="${v===cur?'on':''}">${l}</button>`).join('')}</div>`;
 function barList(gs,ref){
  const mx=Math.max(1,ref||0,...gs.map(g=>Math.abs(g.pnl)));
  return gs.map(g=>`<div class="bl"><span class="bl-k" title="${esc(g.key)}">${esc(g.key)}</span><div class="bl-bar"><i class="${g.pnl>=0?'fill-pos':'fill-neg'}" style="width:${Math.abs(g.pnl)/mx*100}%"></i></div><span class="bl-v ${cls(g.pnl)}">${money(g.pnl)}</span><span class="bl-n">${g.n}</span></div>`).join('')||'<p class="muted">No data yet.</p>';
 }
-const emptyState=()=>`<div class="empty-state card"><svg class="i" style="width:44px;height:44px;color:var(--accent)" viewBox="0 0 24 24">${ICONS.reports}</svg><h2>Your journal is empty</h2><p>Log your first trade to see daily, monthly and yearly profit &amp; loss, averages, a calendar heat-map and personal insights.</p><div class="row"><button class="btn primary" data-act="add">Add first trade</button></div><p style="font-size:13px">Tip: set your starting capital under <a href="#/capital">Capital</a> to see returns in % too.</p></div>`;
+const emptyState=()=>`<div class="empty-state card"><svg class="i" style="width:44px;height:44px;color:var(--accent)" viewBox="0 0 24 24">${ICONS.reports}</svg><h2>Your journal is empty</h2><p>Log your first trade to see daily, monthly and yearly profit &amp; loss, averages, a calendar heat-map and personal insights.</p><div class="row"><button class="btn primary" data-act="add">Add first trade</button><button class="btn" data-act="importf">Import from a CSV / Excel file</button></div><p style="font-size:13px">Tip: set your starting capital under <a href="#/capital">Capital</a> to see returns in % too.</p></div>`;
 
 /* ---------- charts ---------- */
 let charts=[],jobs=[];
@@ -427,8 +474,16 @@ function viewDashboard(){
  </div>`;
 }
 
+function tradeCards(list){ // phone layout: one tappable card per trade (Delete lives in the edit dialog)
+ return `<div class="tl">${list.map(t=>{const p=pnlOf(t),sub=[esc(t.strategy),t.plan===false?'off-plan':'',esc(t.emotion)].filter(Boolean).join(' · ');
+  return `<div class="tc" role="button" tabindex="0" data-act="edit" data-id="${esc(t.id)}">
+  <div class="tc-a"><b>${esc(t.symbol)}</b><span class="tag ${t.side==='Short'?'short':'long'}">${esc(t.side)}</span>${mktOf(t)!=='Stocks'?`<span class="tag">${esc(mktOf(t))}</span>`:''}<span class="tc-p num ${cls(p)}">${p==null?'<span class="tag open">Open</span>':money(p)}</span></div>
+  <div class="tc-b"><span>${dfmt(t.date)} · ${plain(t.qty)} @ ${plain(t.entry)}${isClosed(t)?' → '+plain(t.exit):''}</span><span class="num ${cls(p)}">${p==null?'':pct(retOf(t))}</span></div>
+  ${sub?`<div class="tc-c">${sub}</div>`:''}</div>`}).join('')}</div>`;
+}
 function tradeTable(list,compact){
  if(!list.length)return '<p class="muted">No trades match.</p>';
+ if(small())return tradeCards(list);
  return `<div class="scroll"><table><thead><tr><th>Date</th><th>Symbol</th>${compact?'':'<th>Side</th><th class="r">Qty</th><th class="r">Entry</th><th class="r">Exit</th>'}<th class="r">P&amp;L</th><th class="r">Return</th>${compact?'':'<th>Strategy</th><th>Mood</th><th></th>'}</tr></thead><tbody>
  ${list.map(t=>{const p=pnlOf(t);return `<tr class="click" data-act="edit" data-id="${esc(t.id)}"><td class="num">${dfmt(t.date)}</td><td><b>${esc(t.symbol)}</b>${mktOf(t)!=='Stocks'?` <span class="tag">${esc(mktOf(t))}</span>`:''}${compact?` <span class="tag ${t.side==='Short'?'short':'long'}">${esc(t.side)}</span>`:''}</td>
  ${compact?'':`<td><span class="tag ${t.side==='Short'?'short':'long'}">${esc(t.side)}</span></td><td class="r num">${plain(t.qty)}</td><td class="r num">${plain(t.entry)}</td><td class="r num">${isClosed(t)?plain(t.exit):'<span class="tag open">Open</span>'}</td>`}
@@ -483,9 +538,9 @@ function viewReports(){
  if(!S.trades.length)return emptyState();
  const all=scoped(),lvl=R.tab==='day'?10:R.tab==='month'?7:4;
  const rows=groupBy(all,t=>t.date.slice(0,lvl)).reverse();
- const label=k=>R.tab==='day'?dfmt(k):R.tab==='month'?pd(k+'-01').toLocaleDateString('en',{month:'long',year:'numeric'}):k;
- const tbl=`<div class="scroll" style="max-height:480px;overflow-y:auto"><table><thead><tr><th>${R.tab==='day'?'Day':R.tab==='month'?'Month':'Year'}</th><th class="r">Trades</th><th class="r">Win rate</th><th class="r">Net P&amp;L</th><th class="r">Return</th><th class="r">Avg / trade</th><th class="r">Best</th><th class="r">Worst</th></tr></thead><tbody>
- ${rows.map(g=>{const ps=g.trades.map(pnlOf);return `<tr><td>${label(g.key)}</td><td class="r">${g.n}</td><td class="r">${Math.round(g.w/g.n*100)}%</td><td class="r num ${cls(g.pnl)}"><b>${money(g.pnl)}</b></td><td class="r num ${cls(g.pnl)}">${pct(retPct(g.pnl,pStart(g.key)))}</td><td class="r num ${cls(g.pnl)}">${money(g.pnl/g.n)}</td><td class="r num pos">${money(Math.max(...ps))}</td><td class="r num neg">${money(Math.min(...ps))}</td></tr>`}).join('')}</tbody></table></div>`;
+ const sm=small(),label=k=>R.tab==='day'?dfmt(k):R.tab==='month'?pd(k+'-01').toLocaleDateString('en',{month:sm?'short':'long',year:'numeric'}):k;
+ const tbl=`<div class="scroll" style="max-height:480px;overflow-y:auto"><table><thead><tr><th>${R.tab==='day'?'Day':R.tab==='month'?'Month':'Year'}</th><th class="r">Trades</th><th class="r">Win<span class="hs"> rate</span></th><th class="r">Net P&amp;L</th><th class="r">Return</th><th class="r hs">Avg / trade</th><th class="r hs">Best</th><th class="r hs">Worst</th></tr></thead><tbody>
+ ${rows.map(g=>{const ps=g.trades.map(pnlOf);return `<tr><td>${label(g.key)}</td><td class="r">${g.n}</td><td class="r">${Math.round(g.w/g.n*100)}%</td><td class="r num ${cls(g.pnl)}"><b>${sm?cmoney(g.pnl):money(g.pnl)}</b></td><td class="r num ${cls(g.pnl)}">${pct(retPct(g.pnl,pStart(g.key)))}</td><td class="r num hs ${cls(g.pnl)}">${money(g.pnl/g.n)}</td><td class="r num pos hs">${money(Math.max(...ps))}</td><td class="r num neg hs">${money(Math.min(...ps))}</td></tr>`}).join('')}</tbody></table></div>`;
  const by=(f,min)=>groupBy(all,f).filter(g=>g.key&&g.key!=='undefined').sort((a,b)=>b.pnl-a.pnl);
  return `<div class="card"><h3>Profit &amp; loss statement ${seg('rtab',R.tab,[['day','Daily'],['month','Monthly'],['year','Yearly']])}</h3>${tbl}</div>
  <p class="muted sec" style="margin-bottom:0">Breakdowns – bar = net P&amp;L, number at the right = trades</p>
@@ -619,6 +674,308 @@ function exportCSV(){
  download('stock-journal-trades.csv',rows.map(r=>r.map(q).join(',')).join('\n'),'text/csv');
 }
 
+/* ---------- import trades from CSV / Excel ----------
+   Two kinds of file are understood:
+   - "fills": one row per buy or sell (exchange / broker trade history). Buys and sells are paired per symbol
+     using the average cost of the open position; every sell (or buy-to-cover) closes part or all of it. Whatever
+     is still held at the end stays as an open trade and is continued by the next file you import.
+   - "trades": one row per completed trade with entry and exit prices (closed-P&L exports, MetaTrader history,
+     your own spreadsheet, this app's CSV export).
+   Each imported row leaves a fingerprint on the trade (fk) so importing the same rows again is skipped. */
+const nk=s=>String(s==null?'':s).toLowerCase().replace(/[^a-z0-9]/g,'');
+const IF={ // field: [label, column names it is recognised by (normalised, best first), kind of values]
+ date:['Date / time',['dateutc','datetimeutc','timeutc','date','datetime','time','timestamp','tradedate','tradetime','executiontime','orderexecutiontime','exectime','filltime','filledtime','createdat','createtime','createdtime','closedtime','closetime','closingtime','closedate','exittime','exitdate','updatedtime','updatetime','transactiondate','transactiontime','txdate','txtime','orderdate','ordertime','datetimeist','dateist'],'date'],
+ opened:['Opened (date)',['opentime','opendate','openingtime','entrytime','entrydate','openedat','buydate','buytime'],'date'],
+ symbol:['Symbol / pair',['symbol','pair','tradingsymbol','tradingpair','instrument','instrumentname','ticker','contract','contracts','contractname','scrip','scripname','stock','stockname','security','securityname','coin','asset','currencypair','market','name','symbolname'],'text'],
+ side:['Buy / sell',['side','tradetype','type','direction','buysell','buyorsell','transactiontype','action','orderside','tradeside','positionside','closingdirection','position','bs','trade','txntype'],'side'],
+ qty:['Quantity',['quantity','qty','executed','executedqty','execqty','filledqty','filled','filledquantity','quantitytransacted','size','volume','vol','amount','units','shares','lots','tradedqty','tradeqty','closedqty','closingqty','noofshares'],'num'],
+ price:['Price',['price','avgprice','averageprice','executionprice','executedprice','execprice','fillprice','filledprice','avgfillprice','avgfilledprice','tradeprice','tradedprice','dealprice','rate','spotpriceattransaction','priceattransaction','priceperunit','marketprice'],'num'],
+ entry:['Entry price',['entryprice','avgentryprice','averageentryprice','entryavgprice','openprice','openingprice','avgopenprice','openavgprice','buyprice','buyavg','buyavgprice','avgbuyprice','buyrate','buyaverage','entry'],'num'],
+ exit:['Exit price',['exitprice','avgexitprice','averageexitprice','exitavgprice','closeprice','closingprice','avgcloseprice','closeavgprice','sellprice','sellavg','sellavgprice','avgsellprice','sellrate','sellaverage','exit'],'num'],
+ total:['Total value',['total','cost','value','subtotal','turnover','notional','quoteqty','tradevalue','totalvalue','totalamount','execvalue','filledvalue','grossamount','amount'],'num'],
+ fee:['Fees',['fee','fees','commission','tradingfee','tradingfees','execfee','fillfee','charges','totalcharges','brokerage','totalfees','totalfee','feeamount','transactionfee','feesandcharges','totalcommission'],'num'],
+ feecur:['Fee currency',['feecoin','feecurrency','feeasset','commissionasset','feeccy','feeunit','feetoken','commissioncurrency'],'text'],
+ pnl:['Realised P&L',['realizedpnl','realisedpnl','closedpnl','pnl','netpnl','profit','profitloss','realizedprofit','realisedprofit','netprofit','pl','closedpl','grosspnl'],'num'],
+ id:['Trade / order ID',['tradeid','txid','fillid','execid','executionid','transactionid','dealid','tradeno','tradenumber','id','orderid','ordernumber','orderno','ordertxid'],'text'],
+ quote:['Quote currency',['quoteasset','quotecurrency','quotecoin','spotpricecurrency','pricecurrency','settlecoin','settlementcurrency'],'text'],
+ market:['Market',['market','assetclass','segment','instrumenttype','category'],'market'],
+ mult:['Lot size',['lotsize','multiplier','contractsize','contractmultiplier'],'num'],
+ stop:['Stop-loss',['stop','stoploss','sl','stopprice'],'num'],
+ strategy:['Strategy',['strategy','setup','playbook','tag','tags'],'text'],
+ emotion:['Mood',['emotion','mood','feeling'],'text'],
+ plan:['Followed plan',['followedplan','plan'],'text'],
+ notes:['Notes',['notes','note','comment','comments','remarks','description','memo'],'text']
+};
+const IF_ALL=new Set(Object.values(IF).flatMap(f=>f[1]));
+const QUOTES=['USDT','USDC','FDUSD','BUSD','TUSD','DAI','INR','USD','EUR','GBP','TRY','BRL','BTC','ETH','BNB'];
+const CRY=/(USDT|USDC|BUSD|FDUSD|PERP)$|^(BTC|XBT|ETH|SOL|XRP|DOGE|BNB|ADA|MATIC|POL|DOT|LTC|TRX|AVAX|SHIB|LINK|TON|PEPE|ARB|OP|SUI|APT|NEAR|ATOM|UNI|XLM|BCH|ETC|FIL|INJ|WIF|BONK|FET|RNDR|TIA|SEI|FTM|HBAR|ICP|AAVE|MKR|SAND|MANA|GALA|ALGO|VET|EOS|CRV|LDO|IMX|JUP|ENA|WLD|STX|RUNE|ORDI|USDT)([\/\-_ ]|(USDT|USDC|USD|INR|BTC|ETH|EUR|BUSD|FDUSD)?$)/;
+const FX=/^(EUR|USD|GBP|JPY|AUD|CAD|CHF|NZD|SGD|HKD|ZAR|MXN|SEK|NOK)\/?(EUR|USD|GBP|JPY|AUD|CAD|CHF|NZD|SGD|HKD|ZAR|MXN|SEK|NOK)[A-Z.]?$/;
+const MON='janfebmaraprmayjunjulaugsepoctnovdec';
+let IMP=null; // the import being previewed
+
+function numOf(v){
+ if(typeof v==='number')return isFinite(v)?v:null;
+ let s=String(v==null?'':v).trim().replace(/[−–]/g,'-');if(!s)return null;
+ const neg=/^\(.*\)$/.test(s);
+ s=IMP&&IMP.dc?s.replace(/\./g,'').replace(/,/g,'.'):s.replace(/,/g,'');
+ const m=s.match(/[-+]?(\d+\.?\d*|\.\d+)(e[-+]?\d+)?/i);if(!m)return null;
+ const n=parseFloat(m[0]);return neg?-Math.abs(n):n;
+}
+const isNum=v=>typeof v==='number'||/^[(\-+]?\s*[$₹€£¥]?\s*[\d,.]*\d(e[-+]?\d+)?\s*[A-Za-z%]{0,10}\)?$/i.test(String(v).trim().replace(/[−–]/g,'-'));
+const unitOf=v=>{const m=String(v==null?'':v).trim().match(/[\d.]\s*([A-Za-z]{2,10})$/);return m?m[1].toUpperCase():''};
+function dateOf(v,dmy,utc){
+ if(v instanceof Date)return isNaN(v)?null:v.getTime();
+ if(typeof v==='number'){
+  if(v>1e11)return v; if(v>1e9)return v*1000; // epoch ms / s
+  if(v>20000&&v<80000){const d=new Date(Math.round((v-25569)*864e5));return new Date(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate(),d.getUTCHours(),d.getUTCMinutes(),d.getUTCSeconds()).getTime()} // Excel serial
+  return null}
+ const s=String(v==null?'':v).trim();if(!s)return null;
+ if(/^\d{10}(\d{3})?$/.test(s))return dateOf(+s);
+ if(/^\d{4}-\d{2}-\d{2}T.*(Z|[+-]\d{2}:?\d{2})$/.test(s)){const t=Date.parse(s);return isNaN(t)?null:t}
+ if(/\b(utc|gmt)\b/i.test(s))utc=true;
+ const tm=s.match(/(\d{1,2}):(\d{2})(?::(\d{2}))?(?:\.\d+)?\s*([AaPp][Mm])?/);let H=0,M=0,X=0;
+ if(tm){H=+tm[1];M=+tm[2];X=+(tm[3]||0);if(tm[4]){const pm=/p/i.test(tm[4]);if(H===12)H=pm?12:0;else if(pm)H+=12}}
+ let y,mo,d,m;
+ if((m=s.match(/^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})/))){y=+m[1];mo=+m[2];d=+m[3]}
+ else if((m=s.match(/^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{2,4})/))){const a=+m[1],b=+m[2];y=+m[3];if(y<100)y+=2000;const D=dmy==null?(a>12||b<=12):dmy;d=D?a:b;mo=D?b:a}
+ else if((m=s.match(/^(\d{1,2})[-\s.\/]*([A-Za-z]{3})[A-Za-z]*\.?[-\s,.\/]*(\d{2,4})/))){d=+m[1];mo=MON.indexOf(m[2].toLowerCase())/3+1;y=+m[3];if(y<100)y+=2000}
+ else if((m=s.match(/(?:^|\s)([A-Za-z]{3})[A-Za-z]*\.?\s+(\d{1,2}),?\s+(\d{4})/))){mo=MON.indexOf(m[1].toLowerCase())/3+1;d=+m[2];y=+m[3]}
+ else{const t=Date.parse(s);return isNaN(t)?null:t}
+ if(!(Number.isInteger(mo)&&mo>=1&&mo<=12&&d>=1&&d<=31&&y>1970&&y<2200))return null;
+ return utc?Date.UTC(y,mo-1,d,H,M,X):new Date(y,mo-1,d,H,M,X).getTime();
+}
+function sideOf(v){
+ const s=nk(v);if(!s)return null;
+ if(/closelong|longclose|selltoclose/.test(s))return{a:'sell',p:'Long'};
+ if(/closeshort|shortclose|buytocover|buytoclose|cover/.test(s))return{a:'buy',p:'Short'};
+ if(/openshort|shortopen|sellshort|selltoopen/.test(s))return{a:'sell',p:'Short'};
+ if(/openlong|longopen|buytoopen/.test(s))return{a:'buy',p:'Long'};
+ if(/sell|^s$|sold/.test(s))return{a:'sell'};
+ if(/buy|^b$|bought|purchase/.test(s))return{a:'buy'};
+ if(/^short/.test(s))return{a:'sell',p:'Short'};
+ if(/^long/.test(s))return{a:'buy',p:'Long'};
+ if(/deposit|withdraw|send|receive|reward|convert|transfer|stak|interest|airdrop|funding|fee|rebate|dividend|bonus|income|distribution|lend|earn|mint|burn|pnl|cashback|referral|commission|settlement|liquidat/.test(s))return{skip:String(v).trim()};
+ return null;
+}
+function okCol(f,vals){
+ if(!vals.length)return false;const k=IF[f][2],share=fn=>vals.filter(fn).length/vals.length;
+ if(k==='num')return share(isNum)>=.7;
+ if(k==='date')return share(v=>dateOf(v)!=null)>=.7;
+ if(k==='side')return share(v=>sideOf(v)!=null)>=.6;
+ if(k==='market')return share(v=>Object.keys(MARKETS).some(m=>m.toLowerCase()===String(v).trim().toLowerCase()))>=.7;
+ return share(v=>/[a-z]/i.test(String(v)))>=.5;
+}
+function autoMap(heads,data){
+ const norm=heads.map(nk),used=new Set(),m={},col=i=>data.map(r=>r[i]).filter(v=>v!==''&&v!=null).slice(0,60);
+ for(const f of ['market','date','opened','symbol','side','entry','exit','qty','price','total','fee','feecur','pnl','id','quote','mult','stop','strategy','emotion','plan','notes']){
+  const syn=IF[f][1];let best=-1,bs=1e9;
+  norm.forEach((h,i)=>{if(used.has(i)||!h)return;let s=syn.indexOf(h);
+   if(s<0){const j=syn.findIndex(x=>x.length>=3&&(h.startsWith(x)||h.endsWith(x)));if(j<0)return;s=100+j}
+   if(f==='fee'&&/coin|cur|asset|ccy|unit|rate|token/.test(h))return;
+   if(f==='date'&&/open|entry|buy/.test(h))return;
+   if(s<bs&&okCol(f,col(i))){bs=s;best=i}});
+  if(best>=0){m[f]=best;used.add(best)}
+ }
+ if(m.side==null)heads.forEach((h,i)=>{if(m.side==null&&!used.has(i)&&okCol('side',col(i))){m.side=i;used.add(i)}});
+ // extra fee columns (e.g. "Opening Fee" + "Closing Fee", "Brokerage" + "STT") are added together
+ const feeLike=h=>/fee|commission|charges|brokerage|stt|stampduty|gst/.test(h)&&!/coin|cur|asset|ccy|unit|rate|token|pct|percent|inclusive|value|amount|net|price/.test(h)&&!(/^(sub)?total/.test(h)&&!/^total(fees?|charges|commission|brokerage)$/.test(h));
+ if(m.fee!=null)m.feex=norm.map((h,i)=>i).filter(i=>!used.has(i)&&feeLike(norm[i])&&okCol('fee',col(i)));
+ // separate "Date" and "Time" columns
+ if(m.date!=null){const t=norm.findIndex((h,i)=>!used.has(i)&&/^time/.test(h)&&col(i).every(v=>/^\d{1,2}:\d{2}/.test(String(v).trim())));if(t>=0&&!col(m.date).some(v=>/:/.test(String(v)))){m.time=t;used.add(t)}}
+ return m;
+}
+function parseCSV(text){
+ text=text.replace(/^﻿/,'');
+ const head=text.split(/\r?\n/).slice(0,15).join('\n');
+ const cnt=c=>{let n=0,q=false;for(const ch of head){if(ch==='"')q=!q;else if(ch===c&&!q)n++}return n};
+ const dl=[',',';','\t','|'].reduce((a,c)=>cnt(c)>cnt(a)?c:a,',');
+ const rows=[];let row=[],f='',q=false;
+ for(let i=0;i<text.length;i++){const ch=text[i];
+  if(q){if(ch==='"'){if(text[i+1]==='"'){f+='"';i++}else q=false}else f+=ch}
+  else if(ch==='"')q=true;
+  else if(ch===dl){row.push(f);f=''}
+  else if(ch==='\n'||ch==='\r'){if(ch==='\r'&&text[i+1]==='\n')i++;row.push(f);rows.push(row);row=[];f=''}
+  else f+=ch}
+ if(f!==''||row.length){row.push(f);rows.push(row)}
+ return{rows:rows.map(r=>r.map(x=>x.trim())),dc:dl===';'};
+}
+const headScore=r=>r.filter(c=>IF_ALL.has(nk(c))).length;
+function findHeader(rows){let best=1,bi=-1;for(let i=0;i<Math.min(rows.length,30);i++){const s=headScore(rows[i]);if(s>best){best=s;bi=i}}return bi}
+let xlsxP;
+const loadXLSX=()=>xlsxP||(xlsxP=new Promise((res,rej)=>{const s=document.createElement('script');s.src='https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js';s.onload=()=>res(window.XLSX);s.onerror=()=>{xlsxP=null;rej(new Error('Could not load the Excel reader – check your internet connection, or save the file as CSV.'))};document.head.appendChild(s)}));
+
+function impStart(){
+ openDlg(`<div class="dlg-body"><h3>Import trades from a file</h3>
+ <label class="drop" id="impdrop"><svg class="i" style="width:34px;height:34px" viewBox="0 0 24 24"><path d="M12 15V3M7 8l5-5 5 5"/><path d="M4 15v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/></svg><b>Choose a CSV or Excel file</b><span>or drag it here</span><input type="file" id="impf" class="sr" accept=".csv,.tsv,.txt,.xlsx,.xls,.xlsm,.ods"></label>
+ <p class="muted" style="font-size:13px;margin:14px 0 0">Download your trade history from your exchange or broker – Binance, WazirX, CoinDCX, CoinSwitch, Coinbase, Kraken, Bybit, Delta Exchange, Zerodha, Upstox, Groww, MetaTrader and others – and upload it as it is. Buys and sells are paired into trades automatically, and anything you still hold stays as an open position.</p>
+ <details class="box"><summary>Tips for daily uploads</summary><ul class="muted" style="font-size:13px;margin:8px 0 0;padding-left:18px">
+  <li>Upload each day's file. Rows you've already imported are skipped, so overlapping downloads are fine.</li>
+  <li>Something bought today and sold tomorrow is closed automatically when tomorrow's file is imported.</li>
+  <li>Your own spreadsheet works too: it needs columns for date, symbol, buy/sell, quantity and price – or entry and exit prices for completed trades.</li>
+  <li>You'll see a preview before anything is saved, and you can undo the import afterwards.</li></ul></details>
+ <div class="dlg-foot"><button class="btn" type="button" data-act="dlgclose">Cancel</button></div></div>`);
+ const z=$('#impdrop');
+ z.addEventListener('dragover',e=>{e.preventDefault();z.classList.add('over')});z.addEventListener('dragleave',()=>z.classList.remove('over'));
+ z.addEventListener('drop',e=>{e.preventDefault();e.stopPropagation();z.classList.remove('over');impFile(e.dataTransfer.files[0])});
+}
+function impFail(msg){openDlg(`<div class="dlg-body"><h3>Couldn't read that file</h3><p class="muted">${msg}</p><div class="dlg-foot"><button class="btn" type="button" data-act="dlgclose">Close</button><button class="btn primary" type="button" data-act="importf">Try another file</button></div></div>`)}
+async function impFile(file){
+ if(!file)return;
+ const name=file.name||'file',ext=(name.split('.').pop()||'').toLowerCase();let rows,dc=false;
+ openDlg(`<div class="dlg-body" style="text-align:center"><div class="spin" role="status" aria-label="Reading"></div><b>Reading ${esc(name)}…</b></div>`);
+ try{
+  if(['xlsx','xls','xlsm','xlsb','ods'].includes(ext)){
+   const X=await loadXLSX(),wb=X.read(await file.arrayBuffer(),{type:'array'});let best=null;
+   wb.SheetNames.forEach(n=>{const rs=X.utils.sheet_to_json(wb.Sheets[n],{header:1,raw:true,defval:''}),h=findHeader(rs),sc=h<0?-1:headScore(rs[h]);if(!best||sc>best.sc)best={rs,sc}});
+   rows=best?best.rs:[];
+  }else if(/^(csv|tsv|txt)$/.test(ext)||!ext){const r=parseCSV(await file.text());rows=r.rows;dc=r.dc}
+  else return impFail('Please choose a <b>.csv</b> or Excel (<b>.xlsx</b> / <b>.xls</b>) file.');
+ }catch(e){return impFail(esc(e.message||'The file could not be opened.'))}
+ const h=findHeader(rows);
+ if(h<0)return impFail('No column headings were found. The file needs a heading row with names like <b>Date</b>, <b>Symbol</b>, <b>Side</b>, <b>Quantity</b> and <b>Price</b>.');
+ const heads=rows[h].map((c,i)=>String(c).trim()||'Column '+(i+1));
+ const data=rows.slice(h+1).filter(r=>r.some(c=>String(c).trim()!==''));
+ if(!data.length)return impFail('The file has headings but no rows below them.');
+ IMP={name,heads,data,dc};IMP.m=autoMap(heads,data);
+ // options guessed from the data
+ const m=IMP.m,syms=m.symbol==null?[]:data.slice(0,300).map(r=>String(r[m.symbol]).toUpperCase().trim()).filter(Boolean);
+ const share=re=>syms.length?syms.filter(x=>re.test(x)).length/syms.length:0;
+ const market=share(FX)>=.5?'Forex':(share(CRY)>=.5||heads.some(x=>/coin|feeasset|quoteasset|^pair$/.test(nk(x))))?'Crypto':(MARKETS[S.settings.lastMarket]&&S.settings.lastMarket!=='Crypto'?S.settings.lastMarket:'Stocks');
+ let a12=false,b12=false;if(m.date!=null)data.forEach(r=>{const x=String(r[m.date]).trim().match(/^(\d{1,2})([-\/.])(\d{1,2})\2\d{2,4}/);if(x){if(+x[1]>12||x[2]==='.')a12=true;if(+x[3]>12)b12=true}}); // dd.mm.yyyy is always day-first
+ const ambig=m.date!=null&&!a12&&!b12&&data.some(r=>/^\d{1,2}[-\/.]\d{1,2}[-\/.]\d{2,4}/.test(String(r[m.date]).trim()));
+ const futures=heads.some(x=>/pnl|leverage|margin|position|contract|perp/.test(nk(x)))||share(/PERP|[-_]SWAP$/)>.2;
+ const qtys=m.qty==null?[]:data.map(r=>Math.abs(numOf(r[m.qty])||0));
+ IMP.o={market,dmy:a12?true:b12?false:!/en-US/i.test(navigator.language||''),ambig,shorts:market!=='Crypto'||futures,lots:market==='Forex'&&qtys.length>0&&Math.max(...qtys)<1000};
+ openDlg(`<div class="dlg-body" id="impx"></div>`);impPaint();
+}
+function impBuild(){
+ const{heads,data,m,o}=IMP,g=(r,f)=>m[f]==null?'':r[m[f]];
+ const res={add:[],upd:[],del:[],skip:{},dup:0,feeIgn:new Set(),unmatched:new Set(),mode:m.entry!=null?'trades':'fills'};
+ const miss=[];if(m.date==null)miss.push('date');if(m.symbol==null)miss.push('symbol');if(m.qty==null)miss.push('quantity');
+ if(res.mode==='fills'){if(m.side==null)miss.push('buy / sell');if(m.price==null&&m.total==null)miss.push('price (or entry & exit prices)')}
+ res.miss=miss;if(miss.length)return res;
+ const utc=/utc|gmt/i.test(heads[m.date]),skip=why=>res.skip[why]=(res.skip[why]||0)+1;
+ const have=new Set();S.trades.forEach(t=>(t.fk||[]).forEach(k=>have.add(k)));
+ const seen={},keyOf=k=>{seen[k]=(seen[k]||0)+1;return seen[k]>1?k+'#'+seen[k]:k}; // identical rows in one file stay distinct
+ const mktOf_=r=>{if(m.market!=null){const v=String(g(r,'market')).trim().toLowerCase(),k=Object.keys(MARKETS).find(x=>x.toLowerCase()===v);if(k)return k}return o.market};
+ const symOf=(r,mk)=>{let s=String(g(r,'symbol')).trim().toUpperCase();if(!s)return '';
+  if(mk==='Crypto'){s=s.replace(/[-_ ]/g,'/');if(!s.includes('/')){const qm=QUOTES.find(x=>s.length>x.length&&s.endsWith(x)),q=String(g(r,'quote')).trim().toUpperCase();if(qm)s=s.slice(0,-qm.length)+'/'+qm;else if(q&&q!==s)s+='/'+q}}
+  else if(mk==='Forex'&&/^[A-Z]{6}$/.test(s))s=s.slice(0,3)+'/'+s.slice(3);
+  return s};
+ const defMult=mk=>mk==='Forex'&&o.lots?100000:(MARKETS[mk]&&mk!=='Forex'?MARKETS[mk].mult:1);
+ const tsOf=r=>{let v=g(r,'date');if(m.time!=null)v=String(v).trim()+' '+String(r[m.time]).trim();return dateOf(v,o.dmy,utc)};
+ const txt=(r,f)=>String(g(r,f)).trim(),feeSum=r=>Math.abs(numOf(g(r,'fee'))||0)+(m.fee==null?0:(m.feex||[]).reduce((a,i)=>a+Math.abs(numOf(r[i])||0),0));
+ if(res.mode==='trades'){
+  for(const r of data){
+   const ts=tsOf(r);if(ts==null){skip('no readable date');continue}
+   const sd=sideOf(g(r,'side'));if(sd&&sd.skip){skip('not a trade ('+sd.skip+')');continue}
+   const mk=mktOf_(r),sym=symOf(r,mk);if(!sym){skip('no symbol');continue}
+   const qty=Math.abs(numOf(g(r,'qty'))||0);let en=numOf(g(r,'entry')),ex=numOf(g(r,'exit'));
+   if(!(qty>0)||!(en>0)){skip('missing quantity or entry price');continue}
+   const closing=m.side!=null&&/clos/i.test(heads[m.side]);
+   const side=sd?(sd.p||((sd.a==='buy')!==closing?'Long':'Short')):'Long',dr=side==='Short'?-1:1;
+   if(side==='Short'&&/buy/.test(nk(heads[m.entry])))[en,ex]=[ex,en]; // "buy price / sell price" columns
+   if(!(en>0)){skip('missing quantity or entry price');continue}
+   if(!(ex>0))ex=null;
+   let mult=numOf(g(r,'mult'))||defMult(mk),fees=feeSum(r);
+   const pnl=numOf(g(r,'pnl'));
+   if(ex!=null&&pnl!=null&&ex!==en){
+    if(m.mult==null&&['Forex','Futures','Options','Commodities'].includes(mk)){const ratio=pnl/((ex-en)*qty*dr),c=[1,10,100,1000,100000].find(x=>ratio>0&&Math.abs(Math.log(ratio/x))<.35);if(c)mult=c}
+    if(m.fee==null){const gross=(ex-en)*qty*mult*dr,d=gross-pnl;if(d>0&&d<Math.max(Math.abs(gross),Math.abs(pnl)))fees=+d.toFixed(8)}}
+   const op=m.opened!=null?dateOf(g(r,'opened'),o.dmy,utc):null;
+   const key=keyOf('r:'+txt(r,'id')+'|'+ts+'|'+sym+'|'+side+'|'+qty+'|'+en+'|'+ex);
+   if(have.has(key)){res.dup++;continue}
+   res.add.push({id:uid(),ts,date:ymd(new Date(ex==null&&op!=null?op:ts)),opened:op!=null?ymd(new Date(op)):null,market:mk,mult,symbol:sym,side,qty,entry:en,exit:ex,fees,stop:numOf(g(r,'stop')),strategy:txt(r,'strategy'),emotion:txt(r,'emotion'),plan:!/^(no|n|false|0)$/.test(nk(g(r,'plan'))),notes:txt(r,'notes'),src:'import',fk:[key]});
+  }
+ }else{
+  const fills=[];
+  data.forEach((r,i)=>{
+   const ts=tsOf(r);if(ts==null)return skip('no readable date');
+   const sd=sideOf(g(r,'side'));if(!sd)return skip('no buy / sell value');if(sd.skip)return skip('not a trade ('+sd.skip+')');
+   const mk=mktOf_(r),sym=symOf(r,mk);if(!sym)return skip('no symbol');
+   let q=Math.abs(numOf(g(r,'qty'))||0),p=Math.abs(numOf(g(r,'price'))||0);const tot=Math.abs(numOf(g(r,'total'))||0);
+   if(!p&&q&&tot)p=tot/q;if(!q&&p&&tot)q=tot/p;
+   if(!(q>0&&p>0))return skip('missing quantity or price');
+   let fee=feeSum(r);const fc=(txt(r,'feecur')||unitOf(g(r,'fee'))).toUpperCase();
+   if(fee&&fc&&mk==='Crypto'){const[b,qq]=sym.split('/');if(fc===b)fee*=p;else if(qq&&fc!==qq){res.feeIgn.add(fc);fee=0}}
+   const key=keyOf('f:'+txt(r,'id')+'|'+ts+'|'+sym+'|'+sd.a+'|'+q+'|'+p);
+   if(have.has(key))return res.dup++;
+   fills.push({i,ts,day:ymd(new Date(ts)),sym,mk,a:sd.a,q,p,fee,key,mult:numOf(g(r,'mult'))||defMult(mk)});
+  });
+  if(fills.length>1&&fills[0].ts>fills[fills.length-1].ts)fills.reverse(); // most exports list newest first
+  fills.forEach((f,i)=>f.i=i);fills.sort((a,b)=>a.ts-b.ts||a.i-b.i);
+  const P=new Map(),r10=x=>Math.round(x*1e10)/1e10;
+  S.trades.forEach(t=>{if(t.src==='import'&&!isClosed(t)){const k=mktOf(t)+'|'+t.symbol;if(!P.has(k))P.set(k,{side:t.side,qty:t.qty,entry:t.entry,fees:t.fees||0,opened:t.opened||t.date,keys:[...(t.fk||[])],src:t,mult:mulOf(t),mk:mktOf(t),sym:t.symbol,ts:t.ts})}});
+  const open=(f,q,k)=>P.set(k,{side:f.a==='buy'?'Long':'Short',qty:q,entry:f.p,fees:f.fee*q/f.q,opened:f.day,keys:[f.key],src:null,mult:f.mult,mk:f.mk,sym:f.sym,ts:f.ts});
+  for(const f of fills){
+   const k=f.mk+'|'+f.sym,dirn=f.a==='buy'?'Long':'Short';let p=P.get(k);
+   if(!p){if(f.a==='sell'&&!o.shorts){res.unmatched.add(f.sym);skip('sell without an earlier buy');continue}open(f,f.q,k);continue}
+   if(p.side===dirn){p.entry=(p.entry*p.qty+f.p*f.q)/(p.qty+f.q);p.qty=r10(p.qty+f.q);p.fees+=f.fee;p.keys.push(f.key);p.closing=null;continue}
+   // this fill reduces / closes the position
+   const cq=Math.min(f.q,p.qty),of=p.fees*cq/p.qty,cf=f.fee*cq/f.q;p.fees-=of;let c=p.closing;
+   if(c&&c.date===f.day){c.exit=(c.exit*c.qty+f.p*cq)/(c.qty+cq);c.qty=r10(c.qty+cq);c.fees+=of+cf;c.fk.push(f.key)} // same-day partial fills = one trade
+   else{c={id:uid(),ts:f.ts,date:f.day,opened:p.opened,market:f.mk,mult:p.mult,symbol:f.sym,side:p.side,qty:cq,entry:p.entry,exit:f.p,fees:of+cf,stop:null,strategy:'',emotion:'',plan:true,notes:'',src:'import',fk:[f.key]};res.add.push(c);p.closing=c}
+   p.qty=r10(p.qty-cq);
+   if(p.qty<=1e-9){c.fk.push(...p.keys);if(p.src)res.del.push(p.src);P.delete(k)}
+   const rem=r10(f.q-cq);if(rem<=1e-9)continue;
+   if(f.a==='sell'&&!o.shorts){res.unmatched.add(f.sym);skip('sold more than was bought');continue}
+   open(f,rem,k);
+  }
+  P.forEach(p=>{
+   if(p.src){const t=p.src;if(t.qty!==p.qty||t.entry!==p.entry||(t.fk||[]).length!==p.keys.length)res.upd.push({t,ch:{qty:p.qty,entry:+p.entry.toPrecision(12),fees:+p.fees.toFixed(8),fk:p.keys}})}
+   else res.add.push({id:uid(),ts:p.ts,date:p.opened,opened:p.opened,market:p.mk,mult:p.mult,symbol:p.sym,side:p.side,qty:p.qty,entry:p.entry,exit:null,fees:p.fees,stop:null,strategy:'',emotion:'',plan:true,notes:'',src:'import',fk:p.keys});
+  });
+ }
+ res.add.forEach(t=>{t.fees=+t.fees.toFixed(8);t.entry=+(+t.entry).toPrecision(12);if(t.exit!=null)t.exit=+(+t.exit).toPrecision(12)});
+ return res;
+}
+function impPaint(){
+ const x=$('#impx');if(!x)return;
+ const keepOpen=$('#impcols')&&$('#impcols').open,{m,o,heads,data}=IMP,r=IMP.res=impBuild(),fm=r.mode==='fills';
+ const closed=r.add.filter(isClosed),opn=r.add.filter(t=>!isClosed(t)),net=sum(closed.map(pnlOf)),n=r.add.length+r.upd.length+r.del.length;
+ const sample=i=>{const v=data.map(d=>d[i]).find(v=>String(v).trim()!=='');return v==null?'':String(v).slice(0,18)};
+ const fields=fm?['date','symbol','side','qty','price','total','fee','feecur','id','quote','market','mult']:['date','opened','symbol','side','qty','entry','exit','fee','pnl','id','market','mult','stop','strategy','emotion','plan','notes'];
+ const need=new Set(['date','symbol','qty'].concat(fm?['side']:['entry']));
+ const sel=f=>`<div><label for="im-${f}">${IF[f][0]}${need.has(f)&&m[f]==null?' <b>needed</b>':''}</label><select id="im-${f}" data-map="${f}"><option value="">— not in file —</option>${heads.map((h,i)=>`<option value="${i}" ${m[f]===i?'selected':''}>${esc(h)}${sample(i)?' · '+esc(sample(i)):''}</option>`).join('')}</select></div>`;
+ const msgs=[];
+ if(r.miss.length)msgs.push(['w',`Couldn't find the <b>${r.miss.join(', ')}</b> column. Pick it under “Columns” below.`]);
+ if(r.dup)msgs.push(['',`${r.dup} row${r.dup>1?'s were':' was'} imported before and will be skipped.`]);
+ if(r.upd.length)msgs.push(['',`Adds to or reduces ${r.upd.length} open position${r.upd.length>1?'s':''} from an earlier import.`]);
+ if(r.del.length)msgs.push(['',`Closes ${r.del.length} open position${r.del.length>1?'s':''} from an earlier import.`]);
+ if(r.unmatched.size)msgs.push(['w',`Sells of <b>${[...r.unmatched].slice(0,6).map(esc).join(', ')}</b> have no earlier buy in this file or your journal (bought before this file starts?). Import the older history first – or tick “Selling first opens a short” if these were short trades.`]);
+ Object.entries(r.skip).forEach(([why,c])=>{if(!/sell without|sold more/.test(why))msgs.push(['',`${c} row${c>1?'s':''} skipped: ${esc(why)}.`])});
+ if(r.feeIgn.size)msgs.push(['',`Fees paid in ${[...r.feeIgn].map(esc).join(', ')} weren't counted (the file has no price for that coin).`]);
+ const qs=new Set(r.add.map(t=>(t.symbol.split('/')[1]||'')).filter(Boolean)),cur=S.settings.currency;
+ if(qs.size&&[...qs].every(q=>/^(USDT|USDC|USD|BUSD|FDUSD|TUSD|DAI)$/.test(q))&&cur!=='$')msgs.push(['',`Prices in this file are in ${[...qs].join('/')}, but your journal shows <b>${esc(cur)}</b>. You can change the currency in Settings.`]);
+ if(qs.size&&[...qs].every(q=>q==='INR')&&cur!=='₹')msgs.push(['',`Prices in this file are in INR, but your journal shows <b>${esc(cur)}</b>. You can change the currency in Settings.`]);
+ const pv=[...r.add].sort((a,b)=>(a.exit==null)-(b.exit==null)||(a.date<b.date?1:a.date>b.date?-1:0)).slice(0,8);
+ x.innerHTML=`<h3>Import ${esc(IMP.name)}</h3>
+ <p class="muted" style="margin:-6px 0 12px;font-size:13px">${data.length} row${data.length>1?'s':''} · read as <b>${fm?'buy / sell transactions':'completed trades (entry & exit per row)'}</b></p>
+ <div class="imp-opts">
+  <div><label class="f" for="io-market">Market</label><select id="io-market" data-opt="market">${Object.keys(MARKETS).map(k=>`<option ${o.market===k?'selected':''}>${k}</option>`).join('')}</select></div>
+  ${o.ambig?`<div><label class="f" for="io-dmy">Dates like 03/04/2025 are</label><select id="io-dmy" data-opt="dmy"><option value="1" ${o.dmy?'selected':''}>day / month (3 April)</option><option value="0" ${o.dmy?'':'selected'}>month / day (March 4)</option></select></div>`:''}
+  ${fm?`<label class="check"><input type="checkbox" data-opt="shorts" ${o.shorts?'checked':''}> Selling first opens a short</label>`:''}
+  ${o.market==='Forex'?`<label class="check"><input type="checkbox" data-opt="lots" ${o.lots?'checked':''}> Quantity is in lots (×100,000)</label>`:''}
+ </div>
+ <ul class="msgs">${msgs.map(([c,t])=>`<li class="${c}">${t}</li>`).join('')}</ul>
+ ${r.miss.length?'':`<div class="preview"><div><span>Closed trades</span><b>${closed.length}</b></div><div><span>Open positions</span><b>${opn.length}</b></div><div><span>Net P&amp;L</span><b class="${cls(net)}">${money(net)}</b></div></div>
+ ${pv.length?`<div class="scroll" style="margin-top:12px"><table><thead><tr><th>Date</th><th>Symbol</th><th class="r hs">Qty</th><th class="r hs">Entry</th><th class="r hs">Exit</th><th class="r">P&amp;L</th></tr></thead><tbody>${pv.map(t=>{const p=pnlOf(t);return `<tr><td class="num">${dfmt(t.date)}</td><td><b>${esc(t.symbol)}</b> <span class="tag ${t.side==='Short'?'short':'long'}">${esc(t.side)}</span></td><td class="r num hs">${plain(t.qty)}</td><td class="r num hs">${plain(t.entry)}</td><td class="r num hs">${t.exit==null?'—':plain(t.exit)}</td><td class="r num ${cls(p)}">${p==null?'<span class="tag open">Open</span>':money(p)}</td></tr>`}).join('')}</tbody></table></div>${r.add.length>pv.length?`<p class="muted" style="font-size:13px;margin:8px 0 0">…and ${r.add.length-pv.length} more.</p>`:''}`:''}`}
+ <details class="box" id="impcols" ${keepOpen||r.miss.length?'open':''}><summary>Columns – change if something looks wrong</summary><div class="imp-map">${fields.map(sel).join('')}</div>
+  <p class="muted" style="font-size:12px;margin:10px 0 0">Pick “Entry price” to read the file as completed trades instead of buy / sell transactions.</p></details>
+ <div class="dlg-foot"><button class="btn" type="button" data-act="dlgclose">Cancel</button><button class="btn primary" type="button" data-act="impgo" ${n?'':'disabled'}>${n?`Import ${r.add.length} trade${r.add.length===1?'':'s'}${r.upd.length+r.del.length?` · update ${r.upd.length+r.del.length}`:''}`:'Nothing new to import'}</button></div>`;
+}
+function impApply(){
+ const r=IMP&&IMP.res;if(!r||r.miss.length)return;
+ const old=r.upd.map(u=>({t:u.t,v:{qty:u.t.qty,entry:u.t.entry,fees:u.t.fees,fk:u.t.fk}})),gone=new Set(r.del.map(t=>t.id));
+ r.upd.forEach(u=>Object.assign(u.t,u.ch));
+ S.trades=S.trades.filter(t=>!gone.has(t.id)).concat(r.add);
+ const mk=r.add[0]&&r.add[0].market;if(mk)S.settings.lastMarket=mk;
+ save();dlg.close();IMP=null;render();
+ const nc=r.add.filter(isClosed).length,no=r.add.length-nc;
+ toast(`Imported ${nc} closed trade${nc===1?'':'s'}${no?` and ${no} open position${no===1?'':'s'}`:''}`,'Undo',()=>{
+  const ids=new Set(r.add.map(t=>t.id));S.trades=S.trades.filter(t=>!ids.has(t.id)).concat(r.del);old.forEach(o=>Object.assign(o.t,o.v));save();render();toast('Import undone')},12000);
+}
+
 /* ---------- events ---------- */
 document.addEventListener('click',async e=>{
  const el=e.target.closest('[data-act]');if(!el)return;
@@ -637,6 +994,9 @@ document.addEventListener('click',async e=>{
  if(a==='csv')return exportCSV();
  if(a==='export')return download('stock-journal-backup-'+ymd(new Date())+'.json',JSON.stringify(S,null,1),'application/json');
  if(a==='import')return $('#imp').click();
+ if(a==='importf')return impStart();
+ if(a==='impgo')return impApply();
+ if(a==='dlgclose')return dlg.close();
  if(a==='wipe'&&await ask('Delete everything?','This permanently removes all trades, deposits and settings from '+(Cloud.on?'your account (all devices)':'this browser')+'. Make a backup first if unsure.','Delete all')){S={trades:[],cash:[],settings:{currency:S.settings.currency,startCapital:0,theme:S.settings.theme}};save();render()}
 });
 document.addEventListener('submit',e=>{
@@ -655,6 +1015,9 @@ document.addEventListener('change',e=>{
  if(i==='fm'){J.month=v;paintJournal()}if(i==='fs'){J.side=v;paintJournal()}if(i==='fr'){J.res=v;paintJournal()}if(i==='fg'){J.strat=v;paintJournal()}
  if(i==='cur'){S.settings.currency=v;save();render()}
  if(i==='thm'){S.settings.theme=v;save();applyTheme();render()}
+ if(i==='impf'&&e.target.files[0])return impFile(e.target.files[0]);
+ if(IMP&&e.target.dataset.map){IMP.m[e.target.dataset.map]=v===''?null:+v;return impPaint()}
+ if(IMP&&e.target.dataset.opt){const k=e.target.dataset.opt;IMP.o[k]=e.target.type==='checkbox'?e.target.checked:k==='dmy'?v==='1':v;return impPaint()}
  if(i==='imp'&&e.target.files[0]){
   const rd=new FileReader();rd.onload=async()=>{try{const d=JSON.parse(rd.result);if(!Array.isArray(d.trades))throw 0;
    if(await ask('Restore backup?',`This replaces your current data with ${d.trades.length} trades from the file.`,'Replace')){S={trades:d.trades,cash:d.cash||[],settings:Object.assign(S.settings,d.settings)};save();applyTheme();render();toast('Backup restored')}}catch(x){toast('That file is not a valid backup')}};
@@ -663,8 +1026,13 @@ document.addEventListener('change',e=>{
 });
 document.addEventListener('keydown',e=>{
  if((e.key==='n'||e.key==='N')&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&!dlg.open&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)){e.preventDefault();openTrade()}
+ if((e.key==='Enter'||e.key===' ')&&e.target.matches&&e.target.matches('[role=button][data-act]')){e.preventDefault();e.target.click()}
 });
 window.addEventListener('hashchange',render);
+matchMedia('(max-width:820px)').addEventListener('change',()=>{if(!dlg.open)render()}); // switch table <-> cards on rotate / resize
+// drop a CSV / Excel file anywhere on the page to import it
+document.addEventListener('dragover',e=>{if(e.dataTransfer&&[...e.dataTransfer.types].includes('Files'))e.preventDefault()});
+document.addEventListener('drop',e=>{if(!e.dataTransfer||!e.dataTransfer.files.length)return;e.preventDefault();if(!$('.app').inert)impFile(e.dataTransfer.files[0])});
 /* ---------- cloud accounts & sync (Firebase Auth + Firestore) ----------
    Local-only mode (no login) unless firebase-config.js is filled in. See SETUP.md.
    Data model: users/{uid}/trades/{id}, users/{uid}/cash/{id}, users/{uid}/meta/settings
